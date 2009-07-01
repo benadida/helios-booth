@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8" /> 
+  <title>Helios Voting System</title>
+  <link rel="stylesheet" type="text/css" href="css/booth.css" />
+  <link rel="stylesheet" type="text/css" href="css/forms.css" />
+  <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
+  <script language="javascript" src="js/jquery-jtemplates.js"></script>
+  <script language="javascript" src="js/class.js"></script>  
+  <script language="javascript" src="js/jquery.json.min.js"></script>
+  <script language="javascript" src="js/bigint.js"></script>
+  <script language="javascript" src="js/random.js"></script>
+  <script language="javascript" src="js/elgamal.js"></script>
+  <script language="javascript" src="js/sha1.js"></script>
+  <script language="javascript" src="js/helios.js"></script>
+</head>
+<body>
+<div id="wrapper">
+<div id="banner">Helios Voting Booth</div>
+<div id="content">
+
+<div id="header">
+    <h1 id="election_name"></h1>
+    <h3>Fingerprint: <span id="election_hash"></span></h3>
+</div>
+
+<script language="javascript">
+// utils
+BOOTH = {};
+
+BOOTH.setup_templates = function() {
+    $('#election_div').setTemplateURL("templates/election.html");
+    $('#question_div').setTemplateURL("templates/question.html");
+    $('#confirm_div').setTemplateURL("templates/confirm.html");
+    $('#seal_div').setTemplateURL("templates/seal.html");
+    $('#audit_div').setTemplateURL("templates/audit.html");
+    $('#login_div').setTemplateURL("templates/login.html");
+    $('#done_div').setTemplateURL("templates/done.html");
+};
+
+// set up the message when navigating away
+BOOTH.done_p = false;
+
+window.onbeforeunload = function(evt) {
+  if (BOOTH.done_p)
+    return;
+
+  if (typeof evt == 'undefined') {
+    evt = window.event;
+  }
+  
+  var message = "If you leave this page with an in-progress ballot, your ballot will be lost.";
+
+  if (evt) {
+    evt.returnValue = message;
+  }
+  
+  return message;
+};
+
+BOOTH.setup_ballot = function(election) {
+  BOOTH.ballot = {};
+
+  // each question starts out with an empty array answer
+  BOOTH.ballot.answers = [];
+  $(BOOTH.election.questions).each(function(i,x){
+    BOOTH.ballot.answers[i] = [];
+  });
+};
+
+BOOTH.setup_election = function(election, raw_json) {
+  // use the raw JSON for safer hash computation
+  BOOTH.election = HELIOS.Election.fromJSONString(raw_json);  
+  BOOTH.election_hash = BOOTH.election.get_hash();
+
+  $('#election_hash').html(BOOTH.election_hash);
+
+  BOOTH.setup_ballot();
+};
+
+BOOTH.show = function(el) {
+  $('.panel').hide();
+  el.show();
+  return el;
+};
+
+BOOTH.show_election = function() {
+  BOOTH.show($('#election_div')).processTemplate({'election' : BOOTH.election});
+};
+
+// check if the current question is ok
+BOOTH.validate_question = function(question_num) {
+    // check if enough answers are checked
+    if (BOOTH.ballot.answers[question_num].length < BOOTH.election.questions[question_num].min) {
+        alert('You need to select at least ' + BOOTH.election.questions[question_num].min + ' answer(s).');
+        return false;
+    }
+    
+    return true;
+};
+
+BOOTH.validate_and_confirm = function(question_num) {
+  if (BOOTH.validate_question(question_num)) {
+      BOOTH.show_confirm();
+  }
+};
+
+BOOTH.show_question = function(question_num) {
+  BOOTH.show_progress('1');
+  BOOTH.show($('#question_div')).processTemplate({'question_num' : question_num, 
+                      'last_question_num' : BOOTH.election.questions.length - 1,
+                      'question' : BOOTH.election.questions[question_num]
+                });
+  
+  // fake clicking through the answers, to trigger the disabling if need be
+  // first we remove the answers array
+  var answer_array = BOOTH.ballot.answers[question_num];
+  BOOTH.ballot.answers[question_num] = [];
+  $(answer_array).each(function(i, ans) {
+    BOOTH.click_checkbox_script(question_num, ans, true);
+  });
+
+};
+
+BOOTH.click_checkbox_script = function(question_num, answer_num) {
+  document.forms['answer_form']['answer_'+question_num+'_'+answer_num].click();
+};
+
+BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
+
+  if (checked_p) {
+     // multiple click events shouldn't screw this up
+     if ($(BOOTH.ballot.answers[question_num]).index(answer_num) == -1)
+    BOOTH.ballot.answers[question_num].push(answer_num);
+
+     $('#answer_label_' + question_num + "_" + answer_num).addClass('selected');
+  } else {
+     BOOTH.ballot.answers[question_num] = UTILS.array_remove_value(BOOTH.ballot.answers[question_num], answer_num);
+     $('#answer_label_' + question_num + "_" + answer_num).removeClass('selected');
+  }
+
+  if (BOOTH.ballot.answers[question_num].length >= BOOTH.election.questions[question_num].max) {
+     // disable the other checkboxes
+     $('.ballot_answer').each(function(i, checkbox) {
+        if (!checkbox.checked)
+       checkbox.disabled = true;
+     });
+  } else {
+     // enable the other checkboxes
+     $('.ballot_answer').each(function(i, checkbox) {
+       checkbox.disabled = false;
+     });
+  }
+};
+
+BOOTH.show_processing_before = function(str_to_execute) {
+    $('#processing_div').html("<h3 align='center'>Processing...</h3>");
+    BOOTH.show($('#processing_div'));
+    
+    // add a timeout so browsers like Safari actually display the processing message
+    setTimeout(str_to_execute, 100);    
+};
+
+BOOTH.load_and_setup_election = function() {
+    // the hash will be computed within the setup function call now
+    $.get("election.json", function(raw_json) {
+        var data = jQuery.secureEvalJSON(raw_json);
+        BOOTH.setup_election(data, raw_json);
+        BOOTH.show_election();
+    });    
+};
+
+BOOTH.hide_progress = function() {
+  $('#progress_div').hide();
+};
+
+BOOTH.show_progress = function(step_num) {
+    $('#progress_div').show();
+    $(['1','2','3','4']).each(function(n, step) {
+        if (step == step_num)
+            $('#progress_' + step).attr('class', 'selected');
+        else 
+            $('#progress_' + step).attr('class', 'unselected');
+    });
+};
+
+$(document).ready(function () {
+    BOOTH.setup_templates();
+    BOOTH.load_and_setup_election();
+    
+    BOOTH.hide_progress();
+});  
+
+BOOTH.show_confirm = function() {
+    BOOTH.show_progress('1');
+    
+    // process the answers
+    var choices = BALLOT.pretty_choices(BOOTH.election, BOOTH.ballot);
+
+    BOOTH.show($('#confirm_div')).processTemplate({'questions' : BOOTH.election.questions, 'choices' : choices});
+};
+
+BOOTH.check_encryption_status = function() {
+    $('#processing_div').html("<h3 align='center'>Progress: " + BOOTH.progress.progress() + "%</h3>");
+};
+
+BOOTH.seal_ballot_raw = function() {
+    BOOTH.progress = new UTILS.PROGRESS();
+    var progress_interval = setInterval("BOOTH.check_encryption_status()", 1000);
+    BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
+    clearInterval(progress_interval);
+    $('#seal_div').processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
+    BOOTH.show($('#seal_div'));
+};
+
+BOOTH.seal_ballot = function() {
+    BOOTH.show_progress('2');    
+    BOOTH.show_processing_before("BOOTH.seal_ballot_raw()", true);
+};
+
+BOOTH.audit_ballot = function() {
+    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : $.toJSON(BOOTH.encrypted_ballot.get_audit_trail())});
+};
+
+BOOTH.cast_ballot = function() {
+    BOOTH.show_progress('3');
+    // at this point, we delete the plaintexts by resetting the ballot
+    BOOTH.setup_ballot(BOOTH.election);
+
+    // clear the plaintext from the encrypted 
+    BOOTH.encrypted_ballot.clearPlaintexts();
+
+    BOOTH.show($('#login_div')).processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
+};
+
+BOOTH.send_ballot = function() {
+    BOOTH.show_processing_before("BOOTH.send_ballot_raw()");
+};
+
+BOOTH.show_receipt = function() {
+    UTILS.open_window_with_content("Your Voting Receipt for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot.get_hash());
+};
+
+</script>
+<div id="page">
+  <div id="progress_div" style="display:none;">
+      <table width="100%">
+          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Encrypt</td><td id="progress_3">(3) Submit</td><td id="progress_4">(4) Done</td></tr>
+      </table>
+  </div>
+  <div id="election_div" class="panel">
+    Loading Election Booth...
+  </div>
+
+  <div id="question_div" class="panel">
+  </div>
+
+  <div id="confirm_div" class="panel">
+  </div>
+  
+  <div id="processing_div" class="panel">
+      <h3 align="center">Processing....</h3>
+  </div>
+
+  <div id="seal_div" class="panel">
+  </div>
+
+  <div id="audit_div" class="panel">
+  </div>
+
+  <div id="login_div" class="panel">
+  </div>
+
+  <div id="done_div" class="panel">
+  </div>
+</div>
+
+<br clear="both" />
+</div>
+</div>
+<div id="applet_div">
+</div>
+</body>
+</html>
