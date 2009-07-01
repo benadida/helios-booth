@@ -185,11 +185,26 @@ BOOTH.show_progress = function(step_num) {
     });
 };
 
-$(document).ready(function () {
+BOOTH.so_lets_go = function () {
+    BigInt.setup();
+    
+    if (!BOOTH.ready_p || !BigInt.ready_p)
+        return;
+    
     BOOTH.hide_progress();
 
     BOOTH.setup_templates();
     BOOTH.load_and_setup_election();
+    
+    window.clearInterval(BOOTH.interval);
+};
+
+BOOTH.ready_p = false;
+
+BOOTH.interval = window.setInterval("BOOTH.so_lets_go()", 1000);
+
+$(document).ready(function() {
+    BOOTH.ready_p = true;
 });  
 
 BOOTH.show_confirm = function() {
