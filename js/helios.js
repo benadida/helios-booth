@@ -7,6 +7,16 @@
 // FIXME: needs a healthy refactor/cleanup based on Class.extend()
 //
 
+// extend jquery to do object keys
+// from http://snipplr.com/view.php?codeview&id=10430
+$.extend({
+    keys: function(obj){
+        var a = [];
+        $.each(obj, function(k){ a.push(k) });
+        return a.sort();
+    }
+});
+
 var UTILS = {};
 
 UTILS.array_remove_value = function(arr, val) {
@@ -56,6 +66,15 @@ UTILS.PROGRESS = Class.extend({
   }
 });
 
+// produce the same object but with keys sorted
+UTILS.object_sort_keys = function(obj) {
+  var new_obj = {};
+  $($.keys(obj)).each(function(i, k) {
+    new_obj[k] = obj[k];
+  });
+  return new_obj;
+};
+
 //
 // Helios Stuff
 //
@@ -68,21 +87,17 @@ HELIOS.Election = Class.extend({
   },
   
   toJSONObject: function() {
-    // the reason we repeat code here is to make JSON do the right thing
-    // in terms of ordering the keys. FIXME: get a JSON library that orders keys properly.
+    var json_obj = {ballot_type: this.ballot_type, uuid : this.uuid,
+    name : this.name, public_key: this.pk.toJSONObject(), questions : this.questions,
+    tally_type: this.tally_type, cast_url: this.cast_url};
+    
     if (this.openreg) {
-      return {
-        ballot_type: this.ballot_type, election_id : this.election_id,
-        name : this.name, openreg: true, public_key: this.pk.toJSONObject(), questions : this.questions,
-        tally_type: this.tally_type, voting_ends_at : this.voting_ends_at, voting_starts_at : this.voting_starts_at
-      };
+      json_obj['openreg'] = true;
     } else {
-      return {
-        ballot_type: this.ballot_type, election_id : this.election_id,
-        name : this.name, public_key: this.pk.toJSONObject(), questions : this.questions,
-        tally_type: this.tally_type, voters_hash : this.voters_hash, voting_ends_at : this.voting_ends_at, voting_starts_at : this.voting_starts_at
-      };      
+      json_obj['voters_hash'] = this.voters_hash;
     }
+    
+    return UTILS.object_sort_keys(json_obj);
   },
   
   get_hash: function() {
@@ -90,7 +105,7 @@ HELIOS.Election = Class.extend({
       return this.election_hash;
     
     // otherwise  
-    return b64_sha1(this.toJSON());
+    return b64_sha256(this.toJSON());
   },
   
   toJSON: function() {
@@ -104,29 +119,22 @@ HELIOS.Election.fromJSONString = function(raw_json) {
   
   // hash fix for the issue with re-json'ifying unicode chars
   var election = HELIOS.Election.fromJSONObject(json_object);
-  election.election_hash = b64_sha1(raw_json);
+  election.election_hash = b64_sha256(raw_json);
   
   return election;
 };
 
 HELIOS.Election.fromJSONObject = function(d) {
   var el = new HELIOS.Election();
-  el.election_id = d.election_id;
-  el.name = d.name; el.voters_hash = d.voters_hash; el.voting_starts_at = d.voting_starts_at; el.voting_ends_at = d.voting_ends_at;
-  el.questions = d.questions;
-  
-  // stuff about the election
-  el.ballot_type = d.ballot_type;
-  el.tally_type = d.tally_type;
+  jQuery.extend(el, d);
   
   // empty questions
   if (!el.questions)
     el.questions = [];
   
-  if (d.public_key)
-    el.pk = ElGamal.PublicKey.fromJSONObject(d.public_key);
+  if (el.public_key)
+    el.pk = ElGamal.PublicKey.fromJSONObject(el.public_key);
     
-  el.openreg = d.openreg;
   return el;
 };
 
@@ -374,7 +382,7 @@ HELIOS.EncryptedVote = Class.extend({
       return;
 
     // keep information about the election around
-    this.election_id = election.election_id;
+    this.election_uuid = election.uuid;
     this.election_hash = election.get_hash();
     this.election = election;
      
@@ -391,7 +399,8 @@ HELIOS.EncryptedVote = Class.extend({
         progress.addTicks(q.answers.length + 1);
       });
     }
-      progress.addTicks(0, n_questions);
+    
+    progress.addTicks(0, n_questions);
       
     // loop through questions
     for (var i=0; i<n_questions; i++) {
@@ -428,12 +437,12 @@ HELIOS.EncryptedVote = Class.extend({
     return {
       answers : answers,
       election_hash : this.election_hash,
-      election_id : this.election_id
+      election_uuid : this.election_uuid
     }
   },
   
   get_hash: function() {
-    return b64_sha1(jQuery.toJSON(this));
+    return b64_sha256(jQuery.toJSON(this));
   },
   
   get_audit_trail: function() {
@@ -486,7 +495,7 @@ HELIOS.EncryptedVote.fromJSONObject = function(d, election) {
   });
   
   ev.election_hash = d.election_hash;
-  ev.election_id = d.election_id;
+  ev.election_uuid = d.election_uuid;
   
   return ev;
 };

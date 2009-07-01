@@ -13,6 +13,7 @@
   <script language="javascript" src="js/random.js"></script>
   <script language="javascript" src="js/elgamal.js"></script>
   <script language="javascript" src="js/sha1.js"></script>
+  <script language="javascript" src="js/sha2.js"></script>
   <script language="javascript" src="js/helios.js"></script>
 </head>
 <body>
@@ -35,7 +36,7 @@ BOOTH.setup_templates = function() {
     $('#confirm_div').setTemplateURL("templates/confirm.html");
     $('#seal_div').setTemplateURL("templates/seal.html");
     $('#audit_div').setTemplateURL("templates/audit.html");
-    $('#login_div').setTemplateURL("templates/login.html");
+    $('#login_div').setTemplateURL("templates/submit.html");
     $('#done_div').setTemplateURL("templates/done.html");
 };
 
@@ -69,7 +70,7 @@ BOOTH.setup_ballot = function(election) {
   });
 };
 
-BOOTH.setup_election = function(election, raw_json) {
+BOOTH.setup_election = function(raw_json) {
   // use the raw JSON for safer hash computation
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);  
   BOOTH.election_hash = BOOTH.election.get_hash();
@@ -159,14 +160,13 @@ BOOTH.show_processing_before = function(str_to_execute) {
     BOOTH.show($('#processing_div'));
     
     // add a timeout so browsers like Safari actually display the processing message
-    setTimeout(str_to_execute, 100);    
+    setTimeout(str_to_execute, 100);
 };
 
 BOOTH.load_and_setup_election = function() {
     // the hash will be computed within the setup function call now
     $.get("election.json", function(raw_json) {
-        var data = jQuery.secureEvalJSON(raw_json);
-        BOOTH.setup_election(data, raw_json);
+        BOOTH.setup_election(raw_json);
         BOOTH.show_election();
     });    
 };
@@ -186,10 +186,10 @@ BOOTH.show_progress = function(step_num) {
 };
 
 $(document).ready(function () {
+    BOOTH.hide_progress();
+
     BOOTH.setup_templates();
     BOOTH.load_and_setup_election();
-    
-    BOOTH.hide_progress();
 });  
 
 BOOTH.show_confirm = function() {
@@ -207,7 +207,7 @@ BOOTH.check_encryption_status = function() {
 
 BOOTH.seal_ballot_raw = function() {
     BOOTH.progress = new UTILS.PROGRESS();
-    var progress_interval = setInterval("BOOTH.check_encryption_status()", 1000);
+    var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
     BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
     clearInterval(progress_interval);
     $('#seal_div').processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
@@ -225,13 +225,14 @@ BOOTH.audit_ballot = function() {
 
 BOOTH.cast_ballot = function() {
     BOOTH.show_progress('3');
+    
     // at this point, we delete the plaintexts by resetting the ballot
     BOOTH.setup_ballot(BOOTH.election);
 
     // clear the plaintext from the encrypted 
     BOOTH.encrypted_ballot.clearPlaintexts();
 
-    BOOTH.show($('#login_div')).processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
+    BOOTH.show($('#login_div')).processTemplate({'cast_url': BOOTH.election.cast_url, 'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot), 'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
 };
 
 BOOTH.send_ballot = function() {
@@ -241,6 +242,12 @@ BOOTH.send_ballot = function() {
 BOOTH.show_receipt = function() {
     UTILS.open_window_with_content("Your Voting Receipt for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot.get_hash());
 };
+
+BOOTH.do_done = function() {
+    BOOTH.show_progress('4');
+    BOOTH.show($("#done_div")).processTemplate();
+    BOOTH.done_p = true;
+}
 
 </script>
 <div id="page">

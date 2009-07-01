@@ -12,15 +12,15 @@ Your encrypted vote fingerprint is:<br />
 </p>
 
 <p>
-To submit your encrypted vote, enter your login information below.<br />
-(Notice how we only ask for your login once your ballot plaintext has been discarded.)
+According to the election definition file, this ballot will be submitted to:
 </p>
 
-<form onsubmit="BOOTH.send_ballot(); return false;" action="#" id="send_ballot_form" class="prettyform">
-<label for="email">Email:</label>
-<input type="text" name="email" size="30" /><br />
-<label for="password">Password:</label>
-<input type="password" name="password" size="30" /><br/>
+<p><b><tt>{$T.cast_url}</tt></b></p>
+
+<form method="POST" onsubmit="BOOTH.do_done();" action="{$T.cast_url}" id="send_ballot_form" target="_blank" class="prettyform">
+<textarea name="encrypted_vote" style="display: none;">
+{$T.encrypted_vote_json}
+</textarea>
 <label for="submit">&nbsp;</label>
 <input type="submit" value="send" class="pretty" />
 </form>
