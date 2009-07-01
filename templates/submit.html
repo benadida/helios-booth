@@ -18,6 +18,8 @@ According to the election definition file, this ballot will be submitted to:
 <p><b><tt>{$T.cast_url}</tt></b></p>
 
 <form method="POST" onsubmit="BOOTH.do_done();" action="{$T.cast_url}" id="send_ballot_form" target="_blank" class="prettyform">
+<input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
+<input type="hidden" name="election_hash" value="{$T.election_hash}" />
 <textarea name="encrypted_vote" style="display: none;">
 {$T.encrypted_vote_json}
 </textarea>
