@@ -89,13 +89,8 @@ HELIOS.Election = Class.extend({
   toJSONObject: function() {
     var json_obj = {ballot_type: this.ballot_type, uuid : this.uuid,
     name : this.name, public_key: this.pk.toJSONObject(), questions : this.questions,
-    tally_type: this.tally_type, cast_url: this.cast_url};
-    
-    if (this.openreg) {
-      json_obj['openreg'] = true;
-    } else {
-      json_obj['voters_hash'] = this.voters_hash;
-    }
+    tally_type: this.tally_type, cast_url: this.cast_url, frozen_at: this.frozen_at,
+    openreg: this.openreg, voters_hash: this.voters_hash};
     
     return UTILS.object_sort_keys(json_obj);
   },
@@ -119,7 +114,7 @@ HELIOS.Election.fromJSONString = function(raw_json) {
   
   // hash fix for the issue with re-json'ifying unicode chars
   var election = HELIOS.Election.fromJSONObject(json_object);
-  election.election_hash = b64_sha256(raw_json);
+  election.election_hash = b64_sha256(election.toJSON());
   
   return election;
 };
