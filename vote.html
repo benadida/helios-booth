@@ -15,6 +15,7 @@
   <script language="javascript" src="js/sha1.js"></script>
   <script language="javascript" src="js/sha2.js"></script>
   <script language="javascript" src="js/helios.js"></script>
+  <script language="javascript" src="js/jquery.query-2.1.5.js"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -31,6 +32,9 @@
 BOOTH = {};
 
 BOOTH.setup_templates = function() {
+    if (BOOTH.templates_setup_p)
+        return;
+        
     $('#election_div').setTemplateURL("templates/election.html");
     $('#question_div').setTemplateURL("templates/question.html");
     $('#confirm_div').setTemplateURL("templates/confirm.html");
@@ -38,6 +42,8 @@ BOOTH.setup_templates = function() {
     $('#audit_div').setTemplateURL("templates/audit.html");
     $('#login_div').setTemplateURL("templates/submit.html");
     $('#done_div').setTemplateURL("templates/done.html");
+    
+    BOOTH.templates_setup_p = true;
 };
 
 // set up the message when navigating away
@@ -163,9 +169,9 @@ BOOTH.show_processing_before = function(str_to_execute) {
     setTimeout(str_to_execute, 100);
 };
 
-BOOTH.load_and_setup_election = function() {
+BOOTH.load_and_setup_election = function(election_url) {
     // the hash will be computed within the setup function call now
-    $.get("election.json", function(raw_json) {
+    $.get(election_url, function(raw_json) {
         BOOTH.setup_election(raw_json);
         BOOTH.show_election();
     });    
@@ -194,7 +200,10 @@ BOOTH.so_lets_go = function () {
     BOOTH.hide_progress();
 
     BOOTH.setup_templates();
-    BOOTH.load_and_setup_election();
+    
+    // election URL
+    var election_url = $.query.get('election_url');
+    BOOTH.load_and_setup_election(election_url);
     
     window.clearInterval(BOOTH.interval);
 };
