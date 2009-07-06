@@ -139,7 +139,7 @@ BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
   if (checked_p) {
      // multiple click events shouldn't screw this up
      if ($(BOOTH.ballot.answers[question_num]).index(answer_num) == -1)
-    BOOTH.ballot.answers[question_num].push(answer_num);
+        BOOTH.ballot.answers[question_num].push(answer_num);
 
      $('#answer_label_' + question_num + "_" + answer_num).addClass('selected');
   } else {
@@ -151,7 +151,7 @@ BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
      // disable the other checkboxes
      $('.ballot_answer').each(function(i, checkbox) {
         if (!checkbox.checked)
-       checkbox.disabled = true;
+            checkbox.disabled = true;
      });
   } else {
      // enable the other checkboxes
@@ -234,7 +234,10 @@ BOOTH.seal_ballot_raw = function() {
     var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
     BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
     clearInterval(progress_interval);
-    $('#seal_div').processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash()});
+    
+    // store the ballot hash
+    BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
+    $('#seal_div').processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash});
     BOOTH.show($('#seal_div'));
 };
 
@@ -258,14 +261,14 @@ BOOTH.cast_ballot = function() {
 
     BOOTH.show($('#login_div')).processTemplate({'cast_url': BOOTH.election.cast_url,
         'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot),
-        'encrypted_vote_hash' : BOOTH.encrypted_ballot.get_hash(),
+        'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash,
         'election_uuid' : BOOTH.election.uuid,
-        'election_hash' : BOOTH.election.get_hash()
+        'election_hash' : BOOTH.election_hash
     });
 };
 
 BOOTH.show_receipt = function() {
-    UTILS.open_window_with_content("Your Voting Receipt for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot.get_hash());
+    UTILS.open_window_with_content("Your Voting Receipt for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot_hash);
 };
 
 BOOTH.do_done = function() {
