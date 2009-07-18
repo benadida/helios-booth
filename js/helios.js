@@ -106,7 +106,6 @@ HELIOS.Election = Class.extend({
   toJSON: function() {
     // FIXME: only way around the backslash thing for now.... how ugly
     //return jQuery.toJSON(this.toJSONObject()).replace(/\//g,"\\/");
-    // no longer
     return jQuery.toJSON(this.toJSONObject());
   }
 });
