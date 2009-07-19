@@ -88,7 +88,7 @@ HELIOS.Election = Class.extend({
   
   toJSONObject: function() {
     var json_obj = {ballot_type: this.ballot_type, uuid : this.uuid,
-    name : this.name, public_key: this.pk.toJSONObject(), questions : this.questions,
+    name : this.name, public_key: this.public_key.toJSONObject(), questions : this.questions,
     tally_type: this.tally_type, cast_url: this.cast_url, frozen_at: this.frozen_at,
     openreg: this.openreg, voters_hash: this.voters_hash};
     
@@ -129,7 +129,7 @@ HELIOS.Election.fromJSONObject = function(d) {
     el.questions = [];
   
   if (el.public_key)
-    el.pk = ElGamal.PublicKey.fromJSONObject(el.public_key);
+    el.public_key = ElGamal.PublicKey.fromJSONObject(el.public_key);
     
   return el;
 };
@@ -351,7 +351,7 @@ HELIOS.EncryptedAnswer = Class.extend({
 HELIOS.EncryptedAnswer.fromJSONObject = function(d, election) {
   var ea = new HELIOS.EncryptedAnswer();
   ea.choices = $(d.choices).map(function(i, choice) {
-    return ElGamal.Ciphertext.fromJSONObject(choice, election.pk);
+    return ElGamal.Ciphertext.fromJSONObject(choice, election.public_key);
   });
   
   ea.individual_proofs = $(d.individual_proofs).map(function (i, p) {
@@ -400,7 +400,7 @@ HELIOS.EncryptedVote = Class.extend({
       
     // loop through questions
     for (var i=0; i<n_questions; i++) {
-      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.pk, progress);
+      this.encrypted_answers[i] = new HELIOS.EncryptedAnswer(election.questions[i], answers[i], election.public_key, progress);
     }    
   },
   
@@ -530,7 +530,7 @@ HELIOS.Trustee = Class.extend({
     return {
       'decryption_factors' : HELIOS.jsonify_list_of_lists(this.decryption_factors),
       'decryption_proofs' : HELIOS.jsonify_list_of_list(this.decryption_proofs),
-      'email' : this.email, 'name' : this.name, 'pok' : this.pok.toJSONObject(), 'public_key' : this.pk.toJSONObject()
+      'email' : this.email, 'name' : this.name, 'pok' : this.pok.toJSONObject(), 'public_key' : this.public_key.toJSONObject()
     }
   }
 });
