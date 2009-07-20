@@ -192,11 +192,6 @@ BOOTH.show_progress = function(step_num) {
 };
 
 BOOTH.so_lets_go = function () {
-    BigInt.setup();
-    
-    if (!BOOTH.ready_p || !BigInt.ready_p)
-        return;
-    
     BOOTH.hide_progress();
 
     BOOTH.setup_templates();
@@ -204,16 +199,12 @@ BOOTH.so_lets_go = function () {
     // election URL
     var election_url = $.query.get('election_url');
     BOOTH.load_and_setup_election(election_url);
-    
-    window.clearInterval(BOOTH.interval);
 };
 
 BOOTH.ready_p = false;
 
-BOOTH.interval = window.setInterval("BOOTH.so_lets_go()", 1000);
-
 $(document).ready(function() {
-    BOOTH.ready_p = true;
+    BigInt.setup(BOOTH.so_lets_go);
 });  
 
 BOOTH.show_confirm = function() {

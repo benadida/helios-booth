@@ -127,7 +127,8 @@ function check_applet() {
 
 // Set up the pointer to the applet if necessary, and some
 // basic Big Ints that everyone needs (0, 1, 2, and 42)
-BigInt.setup = function() {
+BigInt._setup = function() {
+  //alert('setup!');
   if (BigInt.use_applet) {
       BigInt.APPLET = document.applets["bigint"];
   }
@@ -142,7 +143,20 @@ BigInt.setup = function() {
   } catch (e) {
     // not ready
   }
+  
+  if (BigInt.setup_interval)
+    window.clearInterval(BigInt.setup_interval);
+    
+  if (BigInt.setup_callback)
+    BigInt.setup_callback();
 };
+
+BigInt.setup = function(callback) {
+  if (callback)
+    BigInt.setup_callback = callback;
+  
+  BigInt.setup_interval = window.setInterval("BigInt._setup()", 1000);
+}
 
 // .onload instead of .ready, as I don't think the applet is ready until onload.
 // FIXME: something wrong here in the first load
