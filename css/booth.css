@@ -104,3 +104,8 @@ body {
 #election_info {
   font-size: 16pt;
 }
+
+#election_hash {
+  font-family: courier;
+}
+}

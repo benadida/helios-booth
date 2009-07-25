@@ -23,8 +23,6 @@
 <div id="content">
 
 <div id="header">
-    <h1 id="election_name"></h1>
-    <h3>Fingerprint: <span id="election_hash"></span></h3>
 </div>
 
 <script language="javascript">
@@ -34,7 +32,8 @@ BOOTH = {};
 BOOTH.setup_templates = function() {
     if (BOOTH.templates_setup_p)
         return;
-        
+    
+    $('#header').setTemplateURL("templates/header.html");
     $('#election_div').setTemplateURL("templates/election.html");
     $('#question_div').setTemplateURL("templates/question.html");
     $('#confirm_div').setTemplateURL("templates/confirm.html");
@@ -78,11 +77,10 @@ BOOTH.setup_ballot = function(election) {
 
 BOOTH.setup_election = function(raw_json) {
   // use the raw JSON for safer hash computation
-  BOOTH.election = HELIOS.Election.fromJSONString(raw_json);  
-  BOOTH.election_hash = BOOTH.election.get_hash();
+  BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
+  BOOTH.election.hash = BOOTH.election.get_hash();
 
-  $('#election_hash').html(BOOTH.election_hash);
-
+  $('#header').processTemplate({'election' : BOOTH.election});
   BOOTH.setup_ballot();
 };
 
@@ -263,16 +261,15 @@ BOOTH.show_receipt = function() {
 };
 
 BOOTH.do_done = function() {
-    BOOTH.show_progress('4');
-    BOOTH.show($("#done_div")).processTemplate();
-    BOOTH.done_p = true;
-}
+  BOOTH.done_p = true;
+  BOOTH.show($('#done_div')).processTemplate({'encrypted_vote_hash': BOOTH.encrypted_ballot_hash});  
+};
 
 </script>
 <div id="page">
   <div id="progress_div" style="display:none;">
       <table width="100%">
-          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Encrypt</td><td id="progress_3">(3) Submit</td><td id="progress_4">(4) Done</td></tr>
+          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Encrypt</td><td id="progress_3">(3) Submit</td></tr>
       </table>
   </div>
   <div id="election_div" class="panel">
@@ -297,7 +294,7 @@ BOOTH.do_done = function() {
 
   <div id="login_div" class="panel">
   </div>
-
+  
   <div id="done_div" class="panel">
   </div>
 </div>
