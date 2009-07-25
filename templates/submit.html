@@ -15,7 +15,7 @@ Your encrypted vote fingerprint is:<br />
 According to the election definition file, this ballot will be submitted to:
 </p>
 
-<p><b><tt>{$T.cast_url}</tt></b></p>
+<p><b><tt style="font-size:1.3em;">{$T.cast_url}</tt></b></p>
 
 <form method="POST" onsubmit="BOOTH.do_done();" action="{$T.cast_url}" id="send_ballot_form" target="_blank" class="prettyform">
 <input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
@@ -23,7 +23,9 @@ According to the election definition file, this ballot will be submitted to:
 <textarea name="encrypted_vote" style="display: none;">
 {$T.encrypted_vote_json}
 </textarea>
-<label for="submit">&nbsp;</label>
-<input type="submit" value="send" class="pretty" />
+<div id="submit_button">
+  <label for="submit">&nbsp;</label>
+  <input type="submit" value="Submit Ballot" class="pretty" />
+</div>
 </form>
 
