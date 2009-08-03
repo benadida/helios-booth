@@ -33,12 +33,12 @@ up to {$T.question.max} answer{#if $T.question.max > 1}s{#/if})
 </div>
 
 {#if $T.question_num != 0}
-<input type="button" onclick="if (BOOTH.validate_question({$T.question_num})) {BOOTH.show_question({$T.question_num -1});}" value="Previous" />
+<input type="button" onclick="BOOTH.previous({$T.question_num})" value="Previous" />
 &nbsp;
 {#/if}
 
 {#if $T.question_num < $T.last_question_num}
-<input type="button" onclick="if (BOOTH.validate_question({$T.question_num})) {BOOTH.show_question({$T.question_num +1});}" value="Next" />
+<input type="button" onclick="BOOTH.next({$T.question_num})" value="Next" />
 &nbsp;
 {#/if}
 

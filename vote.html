@@ -111,6 +111,18 @@ BOOTH.validate_and_confirm = function(question_num) {
   }
 };
 
+BOOTH.next = function(question_num) {
+    if (BOOTH.validate_question(question_num)) {
+        BOOTH.show_question(question_num + 1);
+    }
+};
+
+BOOTH.previous = function(question_num) {
+    if (BOOTH.validate_question(question_num)) {
+        BOOTH.show_question(question_num - 1);
+    }
+};
+
 BOOTH.show_question = function(question_num) {
   BOOTH.show_progress('1');
   BOOTH.show($('#question_div')).processTemplate({'question_num' : question_num, 
@@ -127,6 +139,8 @@ BOOTH.show_question = function(question_num) {
   });
 
 };
+
+
 
 BOOTH.click_checkbox_script = function(question_num, answer_num) {
   document.forms['answer_form']['answer_'+question_num+'_'+answer_num].click();
