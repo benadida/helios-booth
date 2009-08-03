@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8" /> 
+  <title>Helios Voting System</title>
+  <link rel="stylesheet" type="text/css" href="css/booth.css" />
+  <link rel="stylesheet" type="text/css" href="css/forms.css" />
+  <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
+  <script language="javascript" src="js/jquery-jtemplates.js"></script>
+  <script language="javascript" src="js/class.js"></script>  
+  <script language="javascript" src="js/jquery.json.min.js"></script>
+  <script language="javascript" src="js/bigint.js"></script>
+  <script language="javascript" src="js/random.js"></script>
+  <script language="javascript" src="js/elgamal.js"></script>
+  <script language="javascript" src="js/sha1.js"></script>
+  <script language="javascript" src="js/sha2.js"></script>
+  <script language="javascript" src="js/helios.js"></script>
+  <script language="javascript" src="js/jquery.query-2.1.5.js"></script>
+</head>
+<body>
+<script language="javascript">
+$(document).ready(function() {
+    BigInt.setup();
+    var election_url = $.query.get('election_url');
+    $('#election_url').val(election_url); 
+});    
+
+function result_append(str) {
+    $('#results').append(str).append("<br />");
+}
+
+function verify_single_ballot(election_url, audit_trail) {
+  var encrypted_vote_json = jQuery.secureEvalJSON(audit_trail);
+  
+  result_append("loading election...");
+  
+  // the hash will be computed within the setup function call now
+  $.get(election_url, function(raw_json) {
+      election = HELIOS.Election.fromJSONString(raw_json);
+      var election_hash = election.get_hash();
+      result_append("election fingerprint is " + election_hash);
+      
+      // check if the election ballot_type is homomorphic
+      if (election.ballot_type != "homomorphic") {
+          result_append("WARNING: the ballot type for this election is not homomorphic. Verification may fail because this verifier is only set up to handle homomorphic ballots.");
+      }
+      
+      // display ballot fingerprint
+      encrypted_vote = HELIOS.EncryptedVote.fromJSONObject(encrypted_vote_json, election);
+      result_append("ballot fingerprint is " + encrypted_vote.get_hash());
+
+      // check the hash
+      if (election_hash == encrypted_vote.election_hash) {
+          result_append("election fingerprint matches ballot");
+      } else {
+          result_append("PROBLEM = election fingerprint does not match");          
+      }
+      
+      // display the ballot as it is claimed to be
+      result_append("Ballot Contents:")
+      $(election.questions).each(function(qnum, q) {
+          var answer_pretty_list = jQuery.map(encrypted_vote.encrypted_answers[qnum].answer, function(aindex, anum) {
+              return q.answers[aindex];
+          });
+          result_append("Question #" + qnum + " - " + q.short_name + " : " + answer_pretty_list.join(", "));
+      });
+      
+      // verify the encryption
+      if (encrypted_vote.verifyEncryption(election.questions, election.public_key)) {
+          result_append("Encryption Verified");
+      } else {
+          result_append("PROBLEM = Encryption doesn't match.");
+      }
+      
+      // verify the proofs
+      if (encrypted_vote.verifyProofs(election.public_key, function(ea_num, choice_num, result) {
+      })) {
+          result_append("Proofs ok.");
+      } else {
+          result_append("PROBLEM = Proofs don't work.");
+      }
+  });
+}
+
+</script>
+</head>
+<body>
+<div id="wrapper">
+<div id="banner">
+    Helios Single-Ballot Verifier
+</div>
+<div id="content">
+<p style="font-size: 16pt;">
+    This single-ballot verifier lets you enter an audited ballot<br />and verify that it was prepared correctly.
+</p>
+
+<form onsubmit="try {verify_single_ballot(this.election_url.value, this.audit_trail.value);} catch (e) {E = e;} return false;">
+Enter the Election URL:
+    <input type="text" size="50" name="election_url" id="election_url" /><br />
+
+<p>
+Your Ballot:
+</p>
+
+<textarea name="audit_trail" cols="80" rows="7">
+</textarea><br /><br />
+<input type="submit" class="pretty" value="Verify" />
+</form>
+
+<br /><br />
+<div id="results">
+</div>
+</div>
+</div>
+
+<div id="applet_div">
+</div>
+</body>
+</html>

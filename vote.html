@@ -172,6 +172,7 @@ BOOTH.load_and_setup_election = function(election_url) {
     $.get(election_url, function(raw_json) {
         BOOTH.setup_election(raw_json);
         BOOTH.show_election();
+        BOOTH.election_url = election_url;
     });    
 };
 
@@ -236,7 +237,7 @@ BOOTH.seal_ballot = function() {
 };
 
 BOOTH.audit_ballot = function() {
-    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : $.toJSON(BOOTH.encrypted_ballot.get_audit_trail())});
+    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : $.toJSON(BOOTH.encrypted_ballot.get_audit_trail()), 'election_url' : BOOTH.election_url});
 };
 
 BOOTH.cast_ballot = function() {
