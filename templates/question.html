@@ -28,9 +28,12 @@ up to {$T.question.max} answer{#if $T.question.max > 1}s{#/if})
 </div>
 {#/for}
 
+
+{#if $T.show_reviewall}
 <div style="float: right;">
 <input type="button" onclick="BOOTH.validate_and_confirm({$T.question_num});" value="Review all Choices" />
 </div>
+{#/if}
 
 {#if $T.question_num != 0}
 <input type="button" onclick="BOOTH.previous({$T.question_num})" value="Previous" />

@@ -124,10 +124,14 @@ BOOTH.previous = function(question_num) {
 };
 
 BOOTH.show_question = function(question_num) {
+  // the first time we hit the last question, we enable the review all button
+  if (question_num == BOOTH.election.questions.length -1)
+    BOOTH.all_questions_seen = true;
+    
   BOOTH.show_progress('1');
   BOOTH.show($('#question_div')).processTemplate({'question_num' : question_num, 
                       'last_question_num' : BOOTH.election.questions.length - 1,
-                      'question' : BOOTH.election.questions[question_num]
+                      'question' : BOOTH.election.questions[question_num], 'show_reviewall' : BOOTH.all_questions_seen
                 });
   
   // fake clicking through the answers, to trigger the disabling if need be
