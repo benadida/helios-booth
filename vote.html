@@ -32,15 +32,17 @@ BOOTH = {};
 BOOTH.setup_templates = function() {
     if (BOOTH.templates_setup_p)
         return;
+        
+    var cache_bust = "?cb=" + new Date().getTime();
     
-    $('#header').setTemplateURL("templates/header.html");
-    $('#election_div').setTemplateURL("templates/election.html");
-    $('#question_div').setTemplateURL("templates/question.html");
-    $('#confirm_div').setTemplateURL("templates/confirm.html");
-    $('#seal_div').setTemplateURL("templates/seal.html");
-    $('#audit_div').setTemplateURL("templates/audit.html");
-    $('#login_div').setTemplateURL("templates/submit.html");
-    $('#done_div').setTemplateURL("templates/done.html");
+    $('#header').setTemplateURL("templates/header.html" + cache_bust);
+    $('#election_div').setTemplateURL("templates/election.html" + cache_bust);
+    $('#question_div').setTemplateURL("templates/question.html" + cache_bust);
+    $('#confirm_div').setTemplateURL("templates/confirm.html" + cache_bust);
+    $('#seal_div').setTemplateURL("templates/seal.html" + cache_bust);
+    $('#audit_div').setTemplateURL("templates/audit.html" + cache_bust);
+    $('#login_div').setTemplateURL("templates/submit.html" + cache_bust);
+    $('#done_div').setTemplateURL("templates/done.html" + cache_bust);
     
     BOOTH.templates_setup_p = true;
 };
