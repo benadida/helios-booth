@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8" /> 
-  <title>Helios Voting System</title>
+  <title>Helios Voting Booth</title>
   <link rel="stylesheet" type="text/css" href="css/booth.css" />
   <link rel="stylesheet" type="text/css" href="css/forms.css" />
   <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
@@ -48,10 +48,10 @@ BOOTH.setup_templates = function() {
 };
 
 // set up the message when navigating away
-BOOTH.done_p = false;
+BOOTH.started_p = false;
 
 window.onbeforeunload = function(evt) {
-  if (BOOTH.done_p)
+  if (!BOOTH.started_p)
     return;
 
   if (typeof evt == 'undefined') {
@@ -81,6 +81,8 @@ BOOTH.setup_election = function(raw_json) {
   // use the raw JSON for safer hash computation
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
   BOOTH.election.hash = BOOTH.election.get_hash();
+  
+  document.title += ' - ' + BOOTH.election.name;
 
   $('#header').processTemplate({'election' : BOOTH.election});
   BOOTH.setup_ballot();
@@ -126,6 +128,8 @@ BOOTH.previous = function(question_num) {
 };
 
 BOOTH.show_question = function(question_num) {
+  BOOTH.started_p = true;
+  
   // the first time we hit the last question, we enable the review all button
   if (question_num == BOOTH.election.questions.length -1)
     BOOTH.all_questions_seen = true;
@@ -282,7 +286,7 @@ BOOTH.show_receipt = function() {
 };
 
 BOOTH.do_done = function() {
-  BOOTH.done_p = true;
+  BOOTH.started_p = false;
   BOOTH.show($('#done_div')).processTemplate({'encrypted_vote_hash': BOOTH.encrypted_ballot_hash});  
 };
 
