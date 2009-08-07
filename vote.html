@@ -287,7 +287,8 @@ BOOTH.show_receipt = function() {
 
 BOOTH.do_done = function() {
   BOOTH.started_p = false;
-  BOOTH.show($('#done_div')).processTemplate({'encrypted_vote_hash': BOOTH.encrypted_ballot_hash});  
+  // for now don't change the screen, it's confusing
+  // BOOTH.show($('#done_div')).processTemplate({'encrypted_vote_hash': BOOTH.encrypted_ballot_hash});  
 };
 
 </script>
