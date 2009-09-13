@@ -19,6 +19,7 @@
 </head>
 <body>
 <div id="wrapper">
+<span style="float:right; padding: 7px 15px 5px 10px;">[<a href="javascript:BOOTH.exit();">exit</a>]</span>
 <div id="banner">Helios Voting Booth</div>
 <div id="content">
 
@@ -43,6 +44,7 @@ BOOTH.setup_templates = function() {
     $('#audit_div').setTemplateURL("templates/audit.html" + cache_bust);
     $('#login_div').setTemplateURL("templates/submit.html" + cache_bust);
     $('#done_div').setTemplateURL("templates/done.html" + cache_bust);
+    $('#footer').setTemplateURL("templates/footer.html" + cache_bust);
     
     BOOTH.templates_setup_p = true;
 };
@@ -67,6 +69,13 @@ window.onbeforeunload = function(evt) {
   return message;
 };
 
+BOOTH.exit = function() {
+    if (confirm("Are you sure you want to exit the booth and lose all information about your current ballot?")) {
+        BOOTH.started_p = false;
+        window.location = BOOTH.election.cast_url;
+    }
+};
+
 BOOTH.setup_ballot = function(election) {
   BOOTH.ballot = {};
 
@@ -85,6 +94,7 @@ BOOTH.setup_election = function(raw_json) {
   document.title += ' - ' + BOOTH.election.name;
 
   $('#header').processTemplate({'election' : BOOTH.election});
+  $('#footer').processTemplate({'election' : BOOTH.election});
   BOOTH.setup_ballot();
 };
 
