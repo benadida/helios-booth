@@ -1,13 +1,13 @@
 
-<h3 style="border-bottom: 1px solid black;">Submit Your Encrypted Ballot</h3>
+<h3>Submit Your Encrypted Ballot</h3>
 
 <p>
-Your encrypted ballot is ready for submission.<br />
-All plaintext information has been removed from memory: all that remains is the encrypted vote.<br />
+All information, other than your encrypted ballot,<br />
+has been removed from memory.
 </p>
 
 <p>
-Your encrypted vote fingerprint is:<br />
+As a reminder, your ballot tracking number is:<br />
 <b><tt style="font-size: 16pt;">{$T.encrypted_vote_hash}</tt></b>
 </p>
 
@@ -16,6 +16,10 @@ According to the election definition file, this ballot will be submitted to:
 </p>
 
 <p><b><tt style="font-size:1.3em;">{$T.cast_url}</tt></b></p>
+
+<p>
+    where you will log in to validate your eligibility to vote.
+</p>
 
 <form method="POST" onsubmit="BOOTH.do_done();" action="{$T.cast_url}" id="send_ballot_form" class="prettyform">
 <input type="hidden" name="election_uuid" value="{$T.election_uuid}" />

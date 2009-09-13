@@ -1,22 +1,26 @@
 
+<h3>Your Ballot Tracking Number</h3>
+
 <div style="float: right; background:#eee; margin-left: 20px; padding: 10px; border: 1px solid #ddd; width:200px;">
 <p>
-You can choose to audit your ballot, which will show you how your options were encrypted. You will then have to re-seal your ballot if you wish to cast it.<br /><br />
+You can audit your ballot, which will reveal how your choices were encrypted. You will then have to re-encrypt your ballot &mdash; and obtain a new tracking number &mdash; if you wish to cast it.<br /><br />
 <input type="button" value="Audit Ballot" onclick="BOOTH.audit_ballot();" class="pretty" />
 </p>
 </div>
 
 <p>
-Your ballot has now been encrypted. Your ballot fingerprint is:<br /><br />
+Your ballot has now been encrypted. Your ballot tracking number is:<br /><br />
 
 <b><tt style="font-size: 16pt;">{$T.encrypted_vote_hash}</tt></b><br />
-[<a onclick="BOOTH.show_receipt(); return false;" href="#">Your Receipt</a>]
+[<a onclick="BOOTH.show_receipt(); return false;" href="#">print</a>] &nbsp;&nbsp;
+[<a href="mailto:?subject=Helios%20Receipt - {$T.election.name}&body=%0AThis is your ballot receipt number for {$T.election.name}%0A%0A  {$T.encrypted_vote_hash}">email</a>]
 <br />
 </p>
 
 <p>
-If you choose to submit this ballot, all plaintext information will be deleted from your browser's memory.
+Once you confirm this ballot, Helios will clear your browser's memory,<br />
+leaving only your encrypted ballot, which you can then safely submit for tallying.
 </p>
 
-<button onclick="BOOTH.cast_ballot();">Clear Plaintext and Proceed to Submission</button>
+<button onclick="BOOTH.cast_ballot();">Confirm this Ballot</button>
 
