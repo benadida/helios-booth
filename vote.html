@@ -241,7 +241,7 @@ $(document).ready(function() {
 });  
 
 BOOTH.show_confirm = function() {
-    BOOTH.show_progress('1');
+    BOOTH.show_progress('2');
     
     // process the answers
     var choices = BALLOT.pretty_choices(BOOTH.election, BOOTH.ballot);
@@ -261,8 +261,14 @@ BOOTH.seal_ballot_raw = function() {
     
     // store the ballot hash
     BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
-    $('#seal_div').processTemplate({'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash, 'election': BOOTH.election});
+    $('#seal_div').processTemplate({'cast_url': BOOTH.election.cast_url,
+        'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot),
+        'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash,
+        'election_uuid' : BOOTH.election.uuid,
+        'election_hash' : BOOTH.election_hash,
+        'election': BOOTH.election});
     BOOTH.show($('#seal_div'));
+    BOOTH.show_progress('3');    
 };
 
 BOOTH.seal_ballot = function() {
@@ -275,20 +281,17 @@ BOOTH.audit_ballot = function() {
 };
 
 BOOTH.cast_ballot = function() {
-    BOOTH.show_progress('3');
-    
     // at this point, we delete the plaintexts by resetting the ballot
     BOOTH.setup_ballot(BOOTH.election);
 
     // clear the plaintext from the encrypted 
     BOOTH.encrypted_ballot.clearPlaintexts();
 
-    BOOTH.show($('#login_div')).processTemplate({'cast_url': BOOTH.election.cast_url,
-        'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot),
-        'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash,
-        'election_uuid' : BOOTH.election.uuid,
-        'election_hash' : BOOTH.election_hash
-    });
+    // we're ready to leave the site
+    BOOTH.started_p = false;
+    
+    // submit the form
+    $('#send_ballot_form').submit();
 };
 
 BOOTH.show_receipt = function() {
@@ -305,7 +308,7 @@ BOOTH.do_done = function() {
 <div id="page">
   <div id="progress_div" style="display:none; width: 500px; margin:auto;">
       <table width="100%">
-          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Encrypt</td><td id="progress_3">(3) Submit</td></tr>
+          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Review &amp; Encrypt</td><td id="progress_3">(3) Submit</td></tr>
       </table>
   </div>
   <div id="election_div" class="panel">

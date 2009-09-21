@@ -1,15 +1,18 @@
 
-<h3>Your Ballot Tracking Number</h3>
-
-<div style="float: right; background:#eee; margin-left: 20px; padding: 10px; border: 1px solid #ddd; width:200px;">
+<div style="float: right; background: lightyellow; margin-left: 20px; padding: 0px 10px 10px 10px; border: 1px solid #ddd; width:200px;">
+<h4>Audit <span style="font-size: 0.8em; color: #444">[optional]</span></h4>
 <p>
-You can audit your ballot, which will reveal how your choices were encrypted. You will then have to re-encrypt your ballot &mdash; and obtain a new tracking number &mdash; if you wish to cast it.<br /><br />
+If you choose, you can audit your ballot and reveal how your choices were encrypted.
+</p>
 <input type="button" value="Audit Ballot" onclick="BOOTH.audit_ballot();" class="pretty" />
 </p>
 </div>
 
+<h3>Your ballot was successfully encrypted</h3>
+
 <p>
-Your ballot has now been encrypted. Your ballot tracking number is:<br /><br />
+Every Helios ballot comes with a unique tracking number that you should record<br />
+and check against the Ballot Tracking Center. Your tracking number is:<br /><br />
 
 <b><tt style="font-size: 16pt;">{$T.encrypted_vote_hash}</tt></b><br />
 [<a onclick="BOOTH.show_receipt(); return false;" href="#">print</a>] &nbsp;&nbsp;
@@ -18,9 +21,19 @@ Your ballot has now been encrypted. Your ballot tracking number is:<br /><br />
 </p>
 
 <p>
-Once you confirm this ballot, Helios will clear your browser's memory,<br />
-leaving only your encrypted ballot, which you can then safely submit for tallying.
+<b><em>Your next step is to log in and cast your ballot.</em></b><br /><br />
+
+To protect your privacy, Helios has not yet asked for your identity.<br />
+Once you click the button below, Helios will remember only your encrypted vote,<br />
+and only then will prompt you to log in. Thus, only you know your vote.
 </p>
 
-<button onclick="BOOTH.cast_ballot();">Confirm this Ballot</button>
+<button onclick="BOOTH.cast_ballot();">Proceed to Login</button>
 
+<form method="POST" action="{$T.cast_url}" id="send_ballot_form" class="prettyform">
+<input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
+<input type="hidden" name="election_hash" value="{$T.election_hash}" />
+<textarea name="encrypted_vote" style="display: none;">
+{$T.encrypted_vote_json}
+</textarea>
+</form>

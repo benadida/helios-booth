@@ -6,20 +6,16 @@ You have chosen to audit your encrypted ballot.
 </p>
 
 <p>
-Here is the fully audited ballot information, which you can copy and paste.
+Here is the fully audited ballot information.<br />
+<a href="javascript:UTILS.select_element_content($('#audit_trail')[0]);">Select it</a>, copy it to your clipboard, then use the <a target="_blank" href="single-ballot-verify.html?election_url={$T.election_url}">ballot verifier</a> to verify it.
 </p>
 
-<div id="audit_trail" style="width: 700px; height: 300px; overflow: auto; font-family: fixed-width; background:white; border: 1px solid #888;">
+<form action="#">
+<textarea name="audit_trail" id="audit_trail" cols="80" rows="10" wrap="soft">
 {$T.audit_trail}
-</div>
-
-<p>
-    Copy the content above (<a href="javascript:UTILS.select_element_content($('#audit_trail')[0]);">select it</a>).<br />
-</p>
-
-<p>
-    Use the <a target="_blank" href="single-ballot-verify.html?election_url={$T.election_url}">single-ballot verifier</a>.
-</p>
-
+</textarea>
+<br /><br />
 <input type="button" value="Go Back to Choices" onclick="BOOTH.show_confirm();" class="pretty" />
+</form>
+
 

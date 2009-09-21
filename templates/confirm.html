@@ -1,11 +1,11 @@
 
-<h3>Confirmation of your Choices</h3>
+<h3>Review your Ballot</h3>
 
 {#foreach $T.questions as question}
 <p>
 <u>Question #{$T.question$index + 1}</u>: {$T.question.short_name}<br />
 
-your selection: <b style="font-size:1.4em;">{#foreach $T.choices[$T.question$index] as choice}
+<b style="font-size:1.4em;">{#foreach $T.choices[$T.question$index] as choice}
 {$T.choice}{#if !$T.choice$last}, {#/if}
 {#/for}</b>
 &nbsp;&nbsp;&nbsp;
@@ -13,4 +13,4 @@ your selection: <b style="font-size:1.4em;">{#foreach $T.choices[$T.question$ind
 </p>
 {#/for}
 
-<button onclick="BOOTH.seal_ballot();">Encrypt Ballot</button>
+<button onclick="BOOTH.seal_ballot();">Confirm Choices and Encrypt Ballot</button>
