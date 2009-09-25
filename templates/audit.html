@@ -7,7 +7,7 @@ You have chosen to audit your encrypted ballot.
 
 <p>
 Here is the fully audited ballot information.<br />
-<a href="javascript:UTILS.select_element_content($('#audit_trail')[0]);">Select it</a>, copy it to your clipboard, then use the <a target="_blank" href="single-ballot-verify.html?election_url={$T.election_url}">ballot verifier</a> to verify it.
+<a onclick="$('#audit_trail').select(); return false;" href="#">Select it</a>, copy it to your clipboard, then use the <a target="_blank" href="single-ballot-verify.html?election_url={$T.election_url}">ballot verifier</a> to verify it.
 </p>
 
 <form action="#">
