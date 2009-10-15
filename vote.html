@@ -201,6 +201,13 @@ BOOTH.show_processing_before = function(str_to_execute) {
     setTimeout(str_to_execute, 100);
 };
 
+BOOTH.show_encryption_message_before = function(str_to_execute) {
+    BOOTH.show($('#encrypting_div'));
+    
+    // add a timeout so browsers like Safari actually display the processing message
+    setTimeout(str_to_execute, 100);
+};
+
 BOOTH.load_and_setup_election = function(election_url) {
     // the hash will be computed within the setup function call now
     $.get(election_url, function(raw_json) {
@@ -323,6 +330,14 @@ BOOTH.do_done = function() {
   
   <div id="processing_div" class="panel">
       <h3 align="center">Processing....</h3>
+  </div>
+
+  <div id="encrypting_div" class="panel">
+      <h3 align="center">Helios is now encrypting your ballot</h3>
+      
+      <p>
+          <b>You may get a browser warning</b>:
+      </p>
   </div>
 
   <div id="seal_div" class="panel">
