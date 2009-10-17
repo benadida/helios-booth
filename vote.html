@@ -198,7 +198,7 @@ BOOTH.show_processing_before = function(str_to_execute) {
     BOOTH.show($('#processing_div'));
     
     // add a timeout so browsers like Safari actually display the processing message
-    setTimeout(str_to_execute, 100);
+    setTimeout(str_to_execute, 250);
 };
 
 BOOTH.show_encryption_message_before = function(str_to_execute) {
@@ -257,7 +257,7 @@ BOOTH.show_confirm = function() {
 };
 
 BOOTH.check_encryption_status = function() {
-    $('#processing_div').html("<h3 align='center'>Helios is now encrypting your ballot<br />Progress: " + BOOTH.progress.progress() + "%</h3>");
+    $('#percent_done').html(BOOTH.progress.progress());
 };
 
 BOOTH.seal_ballot_raw = function() {
@@ -280,7 +280,7 @@ BOOTH.seal_ballot_raw = function() {
 
 BOOTH.seal_ballot = function() {
     BOOTH.show_progress('2');    
-    BOOTH.show_processing_before("BOOTH.seal_ballot_raw()", true);
+    BOOTH.show_encryption_message_before("BOOTH.seal_ballot_raw()", true);
 };
 
 BOOTH.audit_ballot = function() {
@@ -288,6 +288,10 @@ BOOTH.audit_ballot = function() {
 };
 
 BOOTH.cast_ballot = function() {
+    // show progress spinner
+    $('#loading_div').html('<img src="loading.gif" id="proceed_loading_img" />');
+    $('#proceed_button').attr('disabled', 'disabled');
+    
     // at this point, we delete the plaintexts by resetting the ballot
     BOOTH.setup_ballot(BOOTH.election);
 
@@ -319,7 +323,7 @@ BOOTH.do_done = function() {
       </table>
   </div>
   <div id="election_div" class="panel">
-    Loading Election Booth...
+    <h3>Loading Election Booth...</h3>
   </div>
 
   <div id="question_div" class="panel">
@@ -328,15 +332,21 @@ BOOTH.do_done = function() {
   <div id="confirm_div" class="panel">
   </div>
   
-  <div id="processing_div" class="panel">
+  <div id="processing_div" class="panel" style="display:none;">
       <h3 align="center">Processing....</h3>
   </div>
 
-  <div id="encrypting_div" class="panel">
-      <h3 align="center">Helios is now encrypting your ballot</h3>
+  <div id="encrypting_div" class="panel" style="display:none;">
+      <h3 align="center">Helios is now encrypting your ballot<br />This may take up to two minutes<br />
+          <span id="percent_done">0</span>% done</h3>
       
       <p>
-          <b>You may get a browser warning</b>:
+          <b>You may get a browser warning</b>: if your browser complains about "long-running JavaScript", click Continue and let Helios finish encrypting your ballot.
+      </p>
+      
+      <p>
+          <b>Why so long and complicated?</b>: Helios employs state-of-the-art cryptography to protect the secrecy of your ballot while giving you a tracking number to ensure your ballot was counted.
+          No other web-based voting system provides this level of election integrity. Even the latest browsers don't support this technology natively, which means Helios is encrypting your data in JavaScript, and that takes a little bit more time than you may be accustomed to.
       </p>
   </div>
 

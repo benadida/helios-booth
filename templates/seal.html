@@ -28,7 +28,8 @@ Once you click the button below, Helios will remember only your encrypted vote,<
 and only then will prompt you to log in. Thus, only you know your vote.
 </p>
 
-<button onclick="BOOTH.cast_ballot();">Proceed to Login</button>
+<button id="proceed_button" onclick="BOOTH.cast_ballot();">Proceed to Login</button><br />
+<div id="loading_div"></div>
 
 <form method="POST" action="{$T.cast_url}" id="send_ballot_form" class="prettyform">
 <input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
