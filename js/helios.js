@@ -87,12 +87,14 @@ HELIOS.Election = Class.extend({
   },
   
   toJSONObject: function() {
-    var json_obj = {ballot_type: this.ballot_type, uuid : this.uuid,
+    var json_obj = {uuid : this.uuid,
     description : this.description, short_name : this.short_name, name : this.name,
     public_key: this.public_key.toJSONObject(), questions : this.questions,
-    tally_type: this.tally_type, cast_url: this.cast_url, frozen_at: this.frozen_at,
+    cast_url: this.cast_url, frozen_at: this.frozen_at,
     openreg: this.openreg, voters_hash: this.voters_hash,
-    use_voter_aliases: this.use_voter_aliases};
+    use_voter_aliases: this.use_voter_aliases,
+    voting_starts_at: this.voting_starts_at,
+    voting_ends_at: this.voting_ends_at};
     
     return UTILS.object_sort_keys(json_obj);
   },
