@@ -470,6 +470,9 @@ ElGamal.DisjunctiveProof = Class.extend({
 });
 
 ElGamal.DisjunctiveProof.fromJSONObject = function(d) {
+  if (d==null)
+    return null;
+    
   return new ElGamal.DisjunctiveProof(
     $(d).map(function(i, p) {
       return ElGamal.Proof.fromJSONObject(p);

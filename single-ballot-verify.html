@@ -41,10 +41,8 @@ function verify_single_ballot(election_url, audit_trail) {
       result_append("election fingerprint is " + election_hash);
       
       // check if the election ballot_type is homomorphic
-      if (election.ballot_type != "homomorphic") {
-          result_append("WARNING: the ballot type for this election is not homomorphic. Verification may fail because this verifier is only set up to handle homomorphic ballots.");
-      }
-      
+      // no longer the way this is done
+
       // display ballot fingerprint
       encrypted_vote = HELIOS.EncryptedVote.fromJSONObject(encrypted_vote_json, election);
       result_append("ballot fingerprint is " + encrypted_vote.get_hash());
@@ -59,6 +57,10 @@ function verify_single_ballot(election_url, audit_trail) {
       // display the ballot as it is claimed to be
       result_append("Ballot Contents:")
       $(election.questions).each(function(qnum, q) {
+          if (q.tally_type != "homomorphic") {
+            result_append("WARNING: the tally type for this question is not homomorphic. Verification may fail because this verifier is only set up to handle homomorphic ballots.");
+          }
+        
           var answer_pretty_list = jQuery.map(encrypted_vote.encrypted_answers[qnum].answer, function(aindex, anum) {
               return q.answers[aindex];
           });
