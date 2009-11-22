@@ -224,7 +224,10 @@ HELIOS.EncryptedAnswer = Class.extend({
     var overall_proof = null;
     
     // possible plaintexts [question.min .. , question.max]
-    var plaintexts = UTILS.generate_plaintexts(pk, question.min, question.max);
+    var plaintexts = null;
+    if (question.max != null)
+      plaintexts = UTILS.generate_plaintexts(pk, question.min, question.max);
+    
     var zero_one_plaintexts = UTILS.generate_plaintexts(pk, 0, 1);
     
     // keep track of whether we need to generate new randomness
@@ -265,8 +268,9 @@ HELIOS.EncryptedAnswer = Class.extend({
         progress.tick();
     }
 
-    if (generate_new_randomness) {
+    if (generate_new_randomness && question.max != null) {
       // we also need proof that the whole thing sums up to the right number
+      // only if max is non-null, otherwise it's full approval voting
     
       // compute the homomorphic sum of all the options
       var hom_sum = choices[0];
@@ -286,8 +290,10 @@ HELIOS.EncryptedAnswer = Class.extend({
         overall_plaintext_index -= question.min;
         
       overall_proof = hom_sum.generateDisjunctiveProof(plaintexts, overall_plaintext_index, rand_sum, ElGamal.disjunctive_challenge_generator);
-      if (progress)
-        progress.tick();
+      if (progress) {
+        for (var i=0; i<question.max; i++)
+          progress.tick();
+      }
     }
     
     return {
@@ -337,9 +343,14 @@ HELIOS.EncryptedAnswer = Class.extend({
       }),
       'individual_proofs' : $(this.individual_proofs).map(function(i, disj_proof) {
         return disj_proof.toJSONObject();
-      }),
-      'overall_proof' : this.overall_proof.toJSONObject()
+      })
     };
+    
+    if (this.overall_proof != null) {
+      return_obj.overall_proof = this.overall_proof.toJSONObject();
+    } else {
+      return_obj.overall_proof = null;
+    }
     
     if (include_plaintext) {
       return_obj.answer = this.answer;
@@ -396,7 +407,9 @@ HELIOS.EncryptedVote = Class.extend({
       // set up the number of ticks
       $(election.questions).each(function(q_num, q) {
         // + 1 for the overall proof
-        progress.addTicks(q.answers.length + 1);
+        progress.addTicks(q.answers.length);
+        if (q.max != null)
+          progress.addTicks(q.max);
       });
     }
     

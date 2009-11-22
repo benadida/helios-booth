@@ -179,7 +179,7 @@ BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
      $('#answer_label_' + question_num + "_" + answer_num).removeClass('selected');
   }
 
-  if (BOOTH.ballot.answers[question_num].length >= BOOTH.election.questions[question_num].max) {
+  if (BOOTH.election.questions[question_num].max != null && BOOTH.ballot.answers[question_num].length >= BOOTH.election.questions[question_num].max) {
      // disable the other checkboxes
      $('.ballot_answer').each(function(i, checkbox) {
         if (!checkbox.checked)

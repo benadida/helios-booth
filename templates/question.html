@@ -11,7 +11,11 @@
 {#if $T.question.min && $T.question.min > 0}
 at least {$T.question.min} answer{#if $T.question.min > 1}s{#/if}, 
 {#/if} 
+{#if $T.question.max}
 up to {$T.question.max} answer{#if $T.question.max > 1}s{#/if}
+{#else}
+as many of the choices as you approve of
+{#/if}
 </span>
 </p>
 
