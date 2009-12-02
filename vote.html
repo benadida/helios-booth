@@ -257,7 +257,11 @@ BOOTH.show_confirm = function() {
 };
 
 BOOTH.check_encryption_status = function() {
-    $('#percent_done').html(BOOTH.progress.progress());
+  var progress = BOOTH.progress.progress();
+  if (progress == "" || progress == null)
+    progress = "0";
+    
+  $('#percent_done').html(progress);
 };
 
 BOOTH.seal_ballot_raw = function() {
