@@ -541,9 +541,9 @@ HELIOS.Tally = Class.extend({
     
     return {
       num_tallied : this.num_tallied,
-      tally: tally_json_obj,
-    }
-  },
+      tally: tally_json_obj
+    };
+  }
   
 });
 
@@ -595,7 +595,7 @@ HELIOS.Trustee = Class.extend({
       'decryption_factors' : HELIOS.jsonify_list_of_lists(this.decryption_factors),
       'decryption_proofs' : HELIOS.jsonify_list_of_list(this.decryption_proofs),
       'email' : this.email, 'name' : this.name, 'pok' : this.pok.toJSONObject(), 'public_key' : this.public_key.toJSONObject()
-    }
+    };
   }
 });
 
