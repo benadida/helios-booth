@@ -248,8 +248,6 @@ $(document).ready(function() {
 });  
 
 BOOTH.show_confirm = function() {
-    BOOTH.show_progress('2');
-    
     // process the answers
     var choices = BALLOT.pretty_choices(BOOTH.election, BOOTH.ballot);
 
@@ -310,7 +308,7 @@ BOOTH.cast_ballot = function() {
 };
 
 BOOTH.show_receipt = function() {
-    UTILS.open_window_with_content("Your Voting Receipt for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot_hash);
+    UTILS.open_window_with_content("Your ballot tracking number for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot_hash);
 };
 
 BOOTH.do_done = function() {
@@ -323,7 +321,7 @@ BOOTH.do_done = function() {
 <div id="page">
   <div id="progress_div" style="display:none; width: 500px; margin:auto;">
       <table width="100%">
-          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Review &amp; Encrypt</td><td id="progress_3">(3) Submit</td></tr>
+          <tr><td id="progress_1">(1) Select</td><td id="progress_2">(2) Encrypt</td><td id="progress_3">(3) Submit</td></tr>
       </table>
   </div>
   <div id="election_div" class="panel">
