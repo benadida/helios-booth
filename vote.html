@@ -286,7 +286,14 @@ BOOTH.seal_ballot = function() {
 };
 
 BOOTH.audit_ballot = function() {
-    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : $.toJSON(BOOTH.encrypted_ballot.get_audit_trail()), 'election_url' : BOOTH.election_url});
+    BOOTH.audit_trail = $.toJSON(BOOTH.encrypted_ballot.get_audit_trail());
+    BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : BOOTH.audit_trail, 'election_url' : BOOTH.election_url});
+};
+
+BOOTH.post_audited_ballot = function() {
+  $.post(BOOTH.election_url + "/post-audited-ballot", {'audited_ballot': BOOTH.audit_trail}, function(result) {
+    alert('posted!');
+  });
 };
 
 BOOTH.cast_ballot = function() {
@@ -299,6 +306,9 @@ BOOTH.cast_ballot = function() {
 
     // clear the plaintext from the encrypted 
     BOOTH.encrypted_ballot.clearPlaintexts();
+    
+    // remove audit trail
+    BOOTH.audit_trail = null;
 
     // we're ready to leave the site
     BOOTH.started_p = false;

@@ -15,7 +15,11 @@ Here is the fully audited ballot information.<br />
 {$T.audit_trail}
 </textarea>
 <br /><br />
-<input type="button" value="Go Back to Choices" onclick="BOOTH.show_confirm();" class="pretty" />
+<input type="button" value="post audited ballot to bulletin board" onclick="$(this).attr('disabled', 'disabled');BOOTH.post_audited_ballot();" id="post_audited_ballot_button" class="pretty" />
+&nbsp;&nbsp; &nbsp;
+<input type="button" value="back to voting" onclick="BOOTH.show_confirm();" class="pretty" />
 </form>
+
+
 
 

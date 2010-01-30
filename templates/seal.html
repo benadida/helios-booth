@@ -11,25 +11,28 @@ If you choose, you can audit your ballot and reveal how your choices were encryp
 <h3>Your ballot was successfully encrypted</h3>
 
 <p>
-Every Helios ballot comes with a unique tracking number that you should record<br />
-and check against the Ballot Tracking Center. Your tracking number is:<br /><br />
+Please <b><u>keep a record</u></b> your unique ballot tracking number:<br /><br />
 
-<b><tt style="font-size: 16pt;">{$T.encrypted_vote_hash}</tt></b><br />
-[<a onclick="BOOTH.show_receipt(); return false;" href="#">print</a>] &nbsp;&nbsp;
-[<a href="mailto:?subject=Helios%20Receipt - {$T.election.name}&body=%0AThis is your ballot receipt number for {$T.election.name}%0A%0A  {$T.encrypted_vote_hash}">email</a>]
+<b><tt style="font-size: 16pt;">{$T.encrypted_vote_hash}</tt></b><br /><br />
+
+<a onclick="BOOTH.show_receipt(); return false;" href="#">print</a> this tracking number.<br />
+<a href="mailto:?subject=Helios%20Receipt - {$T.election.name}&body=%0AThis is your ballot tracking number for {$T.election.name}%0A%0A  {$T.encrypted_vote_hash}">email</a> this tracking number.
 <br />
 </p>
 
 <p>
-<b><em>Your next step is to log in and cast your ballot.</em></b><br /><br />
-
-To protect your privacy, Helios has not yet asked for your identity.<br />
-Once you click the button below, Helios will remember only your encrypted vote,<br />
-and only then will prompt you to log in. Thus, only you know your vote.
+To protect your privacy:
+<ul>
+  <li> Helios has not yet asked for your identity.</li>
+  <li> Once you click "Proceed", Helios will remember only your encrypted vote.</li>
+  <li> Thus, only you know your vote.</li>
+</ul>
 </p>
 
-<button id="proceed_button" onclick="BOOTH.cast_ballot();">Proceed to Login</button><br />
+<button id="proceed_button" onclick="BOOTH.cast_ballot();">Proceed to Login and Cast</button><br />
 <div id="loading_div"></div>
+
+
 
 <form method="POST" action="{$T.cast_url}" id="send_ballot_form" class="prettyform">
 <input type="hidden" name="election_uuid" value="{$T.election_uuid}" />
