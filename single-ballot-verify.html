@@ -34,10 +34,13 @@ function verify_single_ballot(election_url, audit_trail) {
   
   result_append("loading election...");
   
+  $('#loading').show();
+  
   // the hash will be computed within the setup function call now
   $.get(election_url, function(raw_json) {
       election = HELIOS.Election.fromJSONString(raw_json);
       var election_hash = election.get_hash();
+      var overall_result = true;
       result_append("election fingerprint is " + election_hash);
       
       // check if the election ballot_type is homomorphic
@@ -51,6 +54,7 @@ function verify_single_ballot(election_url, audit_trail) {
       if (election_hash == encrypted_vote.election_hash) {
           result_append("election fingerprint matches ballot");
       } else {
+          overall_result = false;
           result_append("PROBLEM = election fingerprint does not match");          
       }
       
@@ -71,6 +75,7 @@ function verify_single_ballot(election_url, audit_trail) {
       if (encrypted_vote.verifyEncryption(election.questions, election.public_key)) {
           result_append("Encryption Verified");
       } else {
+          overall_result = false;
           result_append("PROBLEM = Encryption doesn't match.");
       }
       
@@ -79,8 +84,19 @@ function verify_single_ballot(election_url, audit_trail) {
       })) {
           result_append("Proofs ok.");
       } else {
+          overall_result = false;
           result_append("PROBLEM = Proofs don't work.");
       }
+      
+      result_append("<br />");
+      
+      $('#loading').hide();
+      
+      if (overall_result) {
+        result_append('SUCCESSFUL VERIFICATION, DONE!');
+      } else {
+        result_append('PROBLEM - THIS BALLOT DOES NOT VERIFY.');        
+      }      
   });
 }
 
@@ -112,6 +128,7 @@ Your Ballot:
 <br /><br />
 <div id="results">
 </div>
+<img id="loading" src="loading.gif" style="display:none;" />
 </div>
 </div>
 

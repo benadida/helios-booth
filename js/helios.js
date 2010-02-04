@@ -321,7 +321,7 @@ HELIOS.EncryptedAnswer = Class.extend({
     // check the ciphertexts
     for (var i=0; i<result.choices.length; i++) {
       if (!result.choices[i].equals(this.choices[i])) {
-        alert ("oy: " + result.choices[i] + "/" + this.choices[i]);
+        // alert ("oy: " + result.choices[i] + "/" + this.choices[i]);
         return false;
       }
     }
