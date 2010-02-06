@@ -22,7 +22,8 @@ BigInt = Class.extend({
       try {
         this._java_bigint = new java.math.BigInteger(value, radix);
       } catch (e) {
-        alert("oy " + e.toString() + " value=" + value + " , radix=" + radix);
+        // alert("oy " + e.toString() + " value=" + value + " , radix=" + radix);
+        throw TypeError
       }
     }
   },
