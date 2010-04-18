@@ -81,6 +81,12 @@ UTILS.object_sort_keys = function(obj) {
 
 HELIOS = {};
 
+HELIOS.NullJSON = Class.extend({
+  toJSONObject: function() {
+    return '';
+  }
+});
+
 // election
 HELIOS.Election = Class.extend({
   init: function() {
@@ -132,8 +138,12 @@ HELIOS.Election.fromJSONObject = function(d) {
   if (!el.questions)
     el.questions = [];
   
-  if (el.public_key)
+  if (el.public_key) {
     el.public_key = ElGamal.PublicKey.fromJSONObject(el.public_key);
+  } else {
+    // a placeholder that will allow hashing;
+    el.public_key = new HELIOS.NullJSON();
+  }
     
   return el;
 };
