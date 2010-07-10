@@ -69,7 +69,7 @@ function verify_single_ballot(election_url, audit_trail) {
           var answer_pretty_list = jQuery.map(encrypted_vote.encrypted_answers[qnum].answer, function(aindex, anum) {
               return q.answers[aindex];
           });
-          result_append("Question #" + qnum + " - " + q.short_name + " : " + answer_pretty_list.join(", "));
+          result_append("Question #" + (qnum+1) + " - " + q.short_name + " : " + answer_pretty_list.join(", "));
       });
       
       // verify the encryption
