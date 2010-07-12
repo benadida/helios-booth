@@ -10,6 +10,10 @@
   <script language="javascript" src="js/class.js"></script>  
   <script language="javascript" src="js/jquery.json.min.js"></script>
   <script language="javascript" src="js/bigint.js"></script>
+
+  <!-- this script is a dummy wrapper for bigint when client-side crypto is not possible
+  <script language="javascript" src="js/bigint.dummy.js"></script>-->
+
   <script language="javascript" src="js/random.js"></script>
   <script language="javascript" src="js/elgamal.js"></script>
   <script language="javascript" src="js/sha1.js"></script>
@@ -267,12 +271,7 @@ BOOTH.check_encryption_status = function() {
   $('#percent_done').html(progress);
 };
 
-BOOTH.seal_ballot_raw = function() {
-    BOOTH.progress = new UTILS.PROGRESS();
-    var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
-    BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
-    clearInterval(progress_interval);
-    
+BOOTH._after_ballot_encryption = function() {
     // store the ballot hash
     BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
     $('#seal_div').processTemplate({'cast_url': BOOTH.election.cast_url,
@@ -285,9 +284,27 @@ BOOTH.seal_ballot_raw = function() {
     BOOTH.show_progress('3');    
 };
 
+BOOTH.seal_ballot_raw = function() {
+    BOOTH.progress = new UTILS.PROGRESS();
+    var progress_interval = setInterval("BOOTH.check_encryption_status()", 500);
+    BOOTH.encrypted_ballot = new HELIOS.EncryptedVote(BOOTH.election, BOOTH.ballot.answers, BOOTH.progress);
+    clearInterval(progress_interval);
+    BOOTH._after_ballot_encryption();
+};
+
 BOOTH.seal_ballot = function() {
-    BOOTH.show_progress('2');    
-    BOOTH.show_encryption_message_before("BOOTH.seal_ballot_raw()", true);
+    BOOTH.show_progress('2');
+
+    // if we don't have the ability to do crypto in the browser,
+    // we use the server
+    if (BigInt.is_dummy) {
+      $.post(BOOTH.election_url + "/encrypt-ballot", {'answers_json': $.toJSON(BOOTH.ballot.answers)}, function(result) {
+        BOOTH.encrypted_ballot = HELIOS.EncryptedVote.fromJSONObject($.secureEvalJSON(result), BOOTH.election);
+        BOOTH._after_ballot_encryption();
+      });
+    } else {
+      BOOTH.show_encryption_message_before("BOOTH.seal_ballot_raw()", true);
+    }
 };
 
 BOOTH.audit_ballot = function() {
