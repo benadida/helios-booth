@@ -10,6 +10,14 @@
 // A wrapper for java.math.BigInteger with some appropriate extra functions for JSON and 
 // generally being a nice JavaScript object.
 
+// check if java is enabled, if not launch the dummy version
+if (!navigator.javaEnabled()) {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'js/bigint.dummy.js';
+    document.getElementsByTagName('head')[0].appendChild(script);
+} else {
+
 BigInt = Class.extend({
   init: function(value, radix) {
     if (value == null) {
@@ -177,3 +185,4 @@ $(document).ready(function() {
     BigInt.use_applet = check_applet();
 });
 
+}
