@@ -174,14 +174,16 @@ BALLOT.pretty_choices = function(election, ballot) {
 
 
 // open up a new window and do something with it.
-UTILS.open_window_with_content = function(content) {
+UTILS.open_window_with_content = function(content, mime_type) {
+    if (!mime_type)
+	mime_type = "text/plain";
     if (BigInt.is_ie) {
 	    w = window.open("");
-	    w.document.open("text/plain");
+	    w.document.open(mime_type);
 	    w.document.write(content);
 	    w.document.close();
     } else {
-	    w = window.open("data:text/plain," + encodeURIComponent(content));
+	    w = window.open("data:" + mime_type + "," + encodeURIComponent(content));
     }
 };
 
