@@ -246,8 +246,19 @@ BOOTH.so_lets_go = function () {
 };
 
 BOOTH.nojava = function() {
-  $('#election_div').hide();
-  $('#error_div').show();
+  // in the case of Chrome, we get here when Java
+  // is disabled, instead of detecting the problem earlier.
+  // because navigator.javaEnabled() still returns true.
+  // $('#election_div').hide();
+  // $('#error_div').show();
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'js/bigint.dummy.js';
+  document.getElementsByTagName('head')[0].appendChild(script);  
+
+  // FIXME: this is a bit unfortunate, can we have a trigger
+  // for loading this new script?
+  setTimeout("BigInt.setup(BOOTH.so_lets_go)", 2000);
 };
 
 BOOTH.ready_p = false;
