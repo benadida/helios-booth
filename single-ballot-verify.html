@@ -20,9 +20,14 @@
 <body>
 <script language="javascript">
 $(document).ready(function() {
-    BigInt.setup();
-    var election_url = $.query.get('election_url');
-    $('#election_url').val(election_url); 
+    BigInt.setup(function() {
+       $('#verifier_loading').hide();
+       $('#verifier').show();
+       var election_url = $.query.get('election_url');
+       $('#election_url').val(election_url); 
+    }, function() {
+       alert('sorry, in-browser verification requires Java Support at this time.');
+    });
 });    
 
 function result_append(str) {
@@ -120,6 +125,12 @@ function verify_single_ballot(election_url, audit_trail) {
     Helios Single-Ballot Verifier
 </div>
 <div id="content">
+
+<div id="verifier_loading">
+Loading verifier...
+</div>
+
+<div id="verifier" style="display:none;">
 <p style="font-size: 16pt;">
     This single-ballot verifier lets you enter an audited ballot<br />and verify that it was prepared correctly.
 </p>
@@ -142,6 +153,8 @@ Your Ballot:
 </div>
 <img id="loading" src="loading.gif" style="display:none;" />
 </div>
+</div>
+
 </div>
 
 <div id="applet_div">
