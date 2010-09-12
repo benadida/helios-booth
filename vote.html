@@ -91,9 +91,13 @@ BOOTH.setup_ballot = function(election) {
 };
 
 BOOTH.setup_election = function(raw_json) {
-  // use the raw JSON for safer hash computation
+  // IMPORTANT: we use the raw JSON for safer hash computation
+  // so that we are using the JSON serialization of the SERVER
+  // to compute the hash, not the JSON serialization in JavaScript.
+  // the main reason for this is unicode representation: the Python approach
+  // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
-  BOOTH.election.hash = BOOTH.election.get_hash();
+  BOOTH.election.hash = b64_sha256(raw_json);
   
   document.title += ' - ' + BOOTH.election.name;
 
