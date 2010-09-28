@@ -38,6 +38,12 @@ function verify_single_ballot(election_url, audit_trail) {
   var encrypted_vote_json = jQuery.secureEvalJSON(audit_trail);
   
   result_append("loading election...");
+
+  // quick and dirty detection of cast ballot
+  if (encrypted_vote_json['cast_at']) {
+    result_append("\n\nIt looks like you are trying to verify a cast ballot. That can't be done, only audited ballots can be verified.");
+    return;
+  }
   
   $('#loading').show();
   
