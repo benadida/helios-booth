@@ -46,8 +46,6 @@ BOOTH.setup_templates = function() {
     $('#confirm_div').setTemplateURL("templates/confirm.html" + cache_bust);
     $('#seal_div').setTemplateURL("templates/seal.html" + cache_bust);
     $('#audit_div').setTemplateURL("templates/audit.html" + cache_bust);
-    $('#login_div').setTemplateURL("templates/submit.html" + cache_bust);
-    $('#done_div').setTemplateURL("templates/done.html" + cache_bust);
     $('#footer').setTemplateURL("templates/footer.html" + cache_bust);
     
     BOOTH.templates_setup_p = true;
@@ -355,13 +353,11 @@ BOOTH.cast_ballot = function() {
 };
 
 BOOTH.show_receipt = function() {
-    UTILS.open_window_with_content("Your ballot tracking number for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot_hash);
+    UTILS.open_window_with_content("Your smart ballot tracker for " + BOOTH.election.name + ": " + BOOTH.encrypted_ballot_hash);
 };
 
 BOOTH.do_done = function() {
   BOOTH.started_p = false;
-  // for now don't change the screen, it's confusing
-  // BOOTH.show($('#done_div')).processTemplate({'encrypted_vote_hash': BOOTH.encrypted_ballot_hash});  
 };
 
 </script>
@@ -404,7 +400,7 @@ BOOTH.do_done = function() {
       </p>
       
       <p>
-          <b>Why so long and complicated?</b>: Helios employs state-of-the-art cryptography to protect the secrecy of your ballot while giving you a tracking number to ensure your ballot was counted.
+          <b>Why so long and complicated?</b>: Helios employs state-of-the-art cryptography to protect the secrecy of your ballot while giving you a smart tracker to ensure your ballot was counted.
           No other web-based voting system provides this level of election integrity. Even the latest browsers don't support this technology natively, which means Helios is encrypting your data in JavaScript, and that takes a little bit more time than you may be accustomed to.
       </p>
   </div>
@@ -415,11 +411,6 @@ BOOTH.do_done = function() {
   <div id="audit_div" class="panel">
   </div>
 
-  <div id="login_div" class="panel">
-  </div>
-  
-  <div id="done_div" class="panel">
-  </div>
 </div>
 
 <br clear="both" />

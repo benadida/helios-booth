@@ -54,7 +54,7 @@ function verify_single_ballot(election_url, audit_trail) {
 
       // display ballot fingerprint
       encrypted_vote = HELIOS.EncryptedVote.fromJSONObject(encrypted_vote_json, election);
-      result_append("ballot tracking number is " + encrypted_vote.get_hash());
+      result_append("smart ballot tracker is " + encrypted_vote.get_hash());
 
       // check the hash
       if (election_hash == encrypted_vote.election_hash) {
