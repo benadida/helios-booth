@@ -22,6 +22,12 @@
 $(document).ready(function() {
     BigInt.setup(function() {
        $('#verifier_loading').hide();
+
+       if (BigInt.is_dummy) {
+          $('#dummy_bigint').show();
+          return;
+       }
+
        $('#verifier').show();
        var election_url = $.query.get('election_url');
        $('#election_url').val(election_url); 
@@ -134,6 +140,11 @@ function verify_single_ballot(election_url, audit_trail) {
 
 <div id="verifier_loading">
 Loading verifier...
+</div>
+
+<div id="dummy_bigint" style="display:none;">
+Your browser does not have the Java plugin installed.<br /><br />
+At this time, the Java plugin is required for browser-based ballot auditing, although it is not required for ballot preparation.
 </div>
 
 <div id="verifier" style="display:none;">
