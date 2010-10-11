@@ -12,10 +12,19 @@
 
 // check if java is enabled, if not launch the dummy version
 if (!navigator.javaEnabled()) {
-    var script = document.createElement('script');
+    /*    var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'js/bigint.dummy.js';
     document.getElementsByTagName('head')[0].appendChild(script);
+    */
+    BigInt = {}
+    BigInt.setup = function(callback, fail_callback) {
+	if (fail_callback) {
+	    fail_callback();
+	} else {
+	    alert('no java, and no way to recover');
+	}
+    }
 } else {
 
 BigInt = Class.extend({
