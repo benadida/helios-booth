@@ -95,7 +95,11 @@ BOOTH.setup_election = function(raw_json) {
   // the main reason for this is unicode representation: the Python approach
   // appears to be safer.
   BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
+
+  // FIXME: we shouldn't need to set both, but right now we are doing so
+  // because different code uses each one. Bah. Need fixing.
   BOOTH.election.hash = b64_sha256(raw_json);
+  BOOTH.election.election_hash = BOOTH.election.hash
   
   document.title += ' - ' + BOOTH.election.name;
 
