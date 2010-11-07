@@ -309,18 +309,23 @@ BOOTH.seal_ballot_raw = function() {
     BOOTH._after_ballot_encryption();
 };
 
+BOOTH.request_ballot_encryption = function() {
+    $.post(BOOTH.election_url + "/encrypt-ballot", {'answers_json': $.toJSON(BOOTH.ballot.answers)}, function(result) {
+      BOOTH.encrypted_ballot = HELIOS.EncryptedVote.fromJSONObject($.secureEvalJSON(result), BOOTH.election);
+      BOOTH._after_ballot_encryption();
+    });
+};
+
 BOOTH.seal_ballot = function() {
     BOOTH.show_progress('2');
 
     // if we don't have the ability to do crypto in the browser,
     // we use the server
     if (BigInt.is_dummy) {
-      $.post(BOOTH.election_url + "/encrypt-ballot", {'answers_json': $.toJSON(BOOTH.ballot.answers)}, function(result) {
-        BOOTH.encrypted_ballot = HELIOS.EncryptedVote.fromJSONObject($.secureEvalJSON(result), BOOTH.election);
-        BOOTH._after_ballot_encryption();
-      });
+      BOOTH.show_encryption_message_before("BOOTH.request_ballot_encryption()", true);
     } else {
       BOOTH.show_encryption_message_before("BOOTH.seal_ballot_raw()", true);
+      $('#percent_done_container').show();
     }
 };
 
@@ -398,7 +403,7 @@ BOOTH.do_done = function() {
 
   <div id="encrypting_div" class="panel" style="display:none;">
       <h3 align="center">Helios is now encrypting your ballot<br />This may take up to two minutes<br />
-          <span id="percent_done">0</span>% done</h3>
+          <img src="encrypting.gif" /> <span style="font-size:0.7em; display:none;" id="percent_done_container">(<span id="percent_done">0</span>%)</span></h3>
       
       <p>
           <b>You may get a browser warning</b>: if your browser complains about "long-running JavaScript", click Continue and let Helios finish encrypting your ballot.
