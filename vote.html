@@ -195,11 +195,13 @@ BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
         if (!checkbox.checked)
             checkbox.disabled = true;
      });
+     $('#warning_box').html("Maximum number of options selected.<br />To change your selection, please de-select a current selection first.");
   } else {
      // enable the other checkboxes
      $('.ballot_answer').each(function(i, checkbox) {
        checkbox.disabled = false;
      });
+     $('#warning_box').html("");
   }
 };
 
