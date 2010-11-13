@@ -6,20 +6,24 @@
   <link rel="stylesheet" type="text/css" href="css/booth.css" />
   <link rel="stylesheet" type="text/css" href="css/forms.css" />
   <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
-  <script language="javascript" src="js/jquery-jtemplates.js"></script>
-  <script language="javascript" src="js/class.js"></script>  
-  <script language="javascript" src="js/jquery.json.min.js"></script>
-  <script language="javascript" src="js/bigint.js"></script>
-
-  <!-- this script is a dummy wrapper for bigint when client-side crypto is not possible
-  <script language="javascript" src="js/bigint.dummy.js"></script>-->
-
-  <script language="javascript" src="js/random.js"></script>
-  <script language="javascript" src="js/elgamal.js"></script>
-  <script language="javascript" src="js/sha1.js"></script>
-  <script language="javascript" src="js/sha2.js"></script>
-  <script language="javascript" src="js/helios.js"></script>
   <script language="javascript" src="js/jquery.query-2.1.5.js"></script>
+  <script language="javascript" src="js/jquery-jtemplates.js"></script>
+  <script language="javascript" src="js/jquery.json.min.js"></script>
+
+  <script language="javascript">
+    // required for jscrypto library
+    var JSCRYPTO_HOME = document.location.pathname.replace("vote.html", "js/jscrypto");
+  </script>
+
+  <script language="javascript" src="js/jscrypto/class.js"></script>  
+  <script language="javascript" src="js/jscrypto/bigint.js"></script>
+  <!-- this script is a dummy wrapper for bigint when client-side crypto is not possible
+  <script language="javascript" src="js/jscrypto/bigint.dummy.js"></script>-->
+  <script language="javascript" src="js/jscrypto/random.js"></script>
+  <script language="javascript" src="js/jscrypto/elgamal.js"></script>
+  <script language="javascript" src="js/jscrypto/sha1.js"></script>
+  <script language="javascript" src="js/jscrypto/sha2.js"></script>
+  <script language="javascript" src="js/jscrypto/helios.js"></script>
 </head>
 <body>
 <div id="wrapper">
@@ -261,7 +265,7 @@ BOOTH.nojava = function() {
   // $('#error_div').show();
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src = 'js/bigint.dummy.js';
+  script.src = JSCRYPTO_HOME + '/bigint.dummy.js';
   document.getElementsByTagName('head')[0].appendChild(script);  
 
   // FIXME: this is a bit unfortunate, can we have a trigger
