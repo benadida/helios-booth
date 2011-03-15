@@ -295,9 +295,6 @@ BOOTH.check_encryption_status = function() {
 };
 
 BOOTH._after_ballot_encryption = function() {
-    // store the ballot hash
-    BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
-
     // hack to fix a weird Chrome 10 Mac bug where .toJSONObject suddenly returns "[object Object]"
     var encrypted_vote_json;
     var	num_tries = 0;
@@ -313,6 +310,9 @@ BOOTH._after_ballot_encryption = function() {
       	alert('There was a weird error encrypting your vote. We	recommend trying a different browser.');
       }
     }
+
+    // store the ballot hash (after the fix above)
+    BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
 
     $('#seal_div').processTemplate({'cast_url': BOOTH.election.cast_url,
         'encrypted_vote_json': encrypted_vote_json,
