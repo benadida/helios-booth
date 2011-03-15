@@ -297,6 +297,12 @@ BOOTH.check_encryption_status = function() {
 BOOTH._after_ballot_encryption = function() {
     // store the ballot hash
     BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
+
+    // hack to fix a weird Chrome 10 Mac bug where .toJSONObject suddenly returns "[Object object]"
+    if (BigInt.ONE.toJSONObject() != "1") {
+      BigInt.prototype.toJSONObject = BigInt.prototype.toString;
+    }
+
     $('#seal_div').processTemplate({'cast_url': BOOTH.election.cast_url,
         'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot),
         'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash,
