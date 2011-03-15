@@ -298,13 +298,24 @@ BOOTH._after_ballot_encryption = function() {
     // store the ballot hash
     BOOTH.encrypted_ballot_hash = BOOTH.encrypted_ballot.get_hash();
 
-    // hack to fix a weird Chrome 10 Mac bug where .toJSONObject suddenly returns "[Object object]"
-    if (BigInt.ONE.toJSONObject() != "1") {
-      BigInt.prototype.toJSONObject = BigInt.prototype.toString;
+    // hack to fix a weird Chrome 10 Mac bug where .toJSONObject suddenly returns "[object Object]"
+    var encrypted_vote_json;
+    var	num_tries = 0;
+    while (true) {
+      encrypted_vote_json = $.toJSON(BOOTH.encrypted_ballot);
+      if (encrypted_vote_json.indexOf('[object') == -1)
+        break;
+
+      // that's right, we're doing this a few times, because apparently it takes more than once
+      BigInt.prototype.toJSONObject = function() {return this._java_bigint.toString();};
+      num_tries	+= 1;
+      if (num_tries > 20) {
+      	alert('There was a weird error encrypting your vote. We	recommend trying a different browser.');
+      }
     }
 
     $('#seal_div').processTemplate({'cast_url': BOOTH.election.cast_url,
-        'encrypted_vote_json': $.toJSON(BOOTH.encrypted_ballot),
+        'encrypted_vote_json': encrypted_vote_json,
         'encrypted_vote_hash' : BOOTH.encrypted_ballot_hash,
         'election_uuid' : BOOTH.election.uuid,
         'election_hash' : BOOTH.election_hash,
