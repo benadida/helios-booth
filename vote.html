@@ -5,6 +5,9 @@
   <title>Helios Voting Booth</title>
   <link rel="stylesheet" type="text/css" href="css/booth.css" />
   <link rel="stylesheet" type="text/css" href="css/forms.css" />
+  <script language="javascript" src="js/jscrypto/jsbn.js"></script>
+  <script language="javascript" src="js/jscrypto/jsbn2.js"></script>
+  <script language="javascript" src="js/jscrypto/sjcl.js"></script>
   <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
   <script language="javascript" src="js/jquery.query-2.1.5.js"></script>
   <script language="javascript" src="js/jquery-jtemplates.js"></script>
@@ -35,6 +38,7 @@
 </div>
 
 <script language="javascript">
+
 // utils
 BOOTH = {};
 
@@ -263,19 +267,23 @@ BOOTH.nojava = function() {
   // because navigator.javaEnabled() still returns true.
   // $('#election_div').hide();
   // $('#error_div').show();
-  var script = document.createElement('script');
+/*  var script = document.createElement('script');
   script.type = 'text/javascript';
   script.src = JSCRYPTO_HOME + '/bigint.dummy.js';
   document.getElementsByTagName('head')[0].appendChild(script);  
 
   // FIXME: this is a bit unfortunate, can we have a trigger
   // for loading this new script?
-  setTimeout("BigInt.setup(BOOTH.so_lets_go)", 2000);
+  setTimeout("BigInt.setup(BOOTH.so_lets_go)", 2000); */
+    USE_SJCL = true;
+    sjcl.random.startCollectors();
+    BigInt.setup(BOOTH.so_lets_go);
 };
 
 BOOTH.ready_p = false;
 
 $(document).ready(function() {
+    if (USE_SJCL) sjcl.random.startCollectors();
     BigInt.setup(BOOTH.so_lets_go, BOOTH.nojava);
 });  
 
