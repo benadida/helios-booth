@@ -26,16 +26,14 @@ var ELECTION = null;
 var Q_NUM = null;
 
 function do_setup(message) {
-    console.log("setting worker " + message.question_num);
+    console.log("setting up worker " + message.question_num);
 
     ELECTION = HELIOS.Election.fromJSONString(message.election);
     Q_NUM = message.question_num;
-
-    console.log("hash is " + ELECTION.election_hash);
 }
 
 function do_encrypt(message) {
-    console.log("encrypting answer " + message.answer + " to question " + ELECTION.questions[Q_NUM]);
+    console.log("encrypting answer for question " + ELECTION.questions[Q_NUM]);
 
     var encrypted_answer = new HELIOS.EncryptedAnswer(ELECTION.questions[Q_NUM], message.answer, ELECTION.public_key);
 
@@ -44,7 +42,8 @@ function do_encrypt(message) {
     // send the result back
     self.postMessage({
 	    'type': 'result',
-	    'encrypted_answer': encrypted_answer.toJSONObject(true)
+		'encrypted_answer': encrypted_answer.toJSONObject(true),
+		'id':message.id
 		});
 }
 

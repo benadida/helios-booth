@@ -115,6 +115,7 @@ BOOTH.setup_election = function(raw_json) {
       // prepare spots for encrypted answers
       // and one worker per question
       BOOTH.encrypted_answers = [];
+      BOOTH.answer_timestamps = [];
       BOOTH.workers = [];
       $(BOOTH.election.questions).each(function(q_num, q) {
         BOOTH.encrypted_answers[q_num] = null;
@@ -133,9 +134,14 @@ BOOTH.setup_election = function(raw_json) {
            // result of encryption
            if (event.data.type == 'result') {
              console.log("got encrypted answer " + q_num);
-             console.log(JSON.stringify(event.data.encrypted_answer));
-             BOOTH.encrypted_answers[q_num] = HELIOS.EncryptedAnswer.fromJSONObject(event.data.encrypted_answer, BOOTH.election);
-             console.log("done decoding it");
+             
+             // this check ensures that race conditions
+             // don't screw up votes.
+             if (event.data.id == BOOTH.answer_timestamps[q_num]) {
+                BOOTH.encrypted_answers[q_num] = HELIOS.EncryptedAnswer.fromJSONObject(event.data.encrypted_answer, BOOTH.election);
+             } else {
+                console.log("no way jose");
+             }
            }
         };
 
@@ -170,9 +176,14 @@ BOOTH.validate_question = function(question_num) {
     
     // if we need to launch the worker, let's do it
     if (!BOOTH.synchronous) {
+       // we need a unique ID for this to ensure that old results
+       // don't mess things up. Using timestamp.
+       BOOTH.answer_timestamps[question_num] = new Date().getTime();
+       BOOTH.encrypted_answers[question_num] = null;
        BOOTH.workers[question_num].postMessage({
          'type' : 'encrypt',
-         'answer' : BOOTH.ballot.answers[question_num]
+         'answer' : BOOTH.ballot.answers[question_num],
+         'id' : BOOTH.answer_timestamps[question_num]
        });
     }						    
     return true;
