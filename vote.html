@@ -110,6 +110,9 @@ BOOTH.setup_election = function(raw_json) {
   BOOTH.election.hash = b64_sha256(raw_json);
   BOOTH.election.election_hash = BOOTH.election.hash
 
+  // dirty markers for encryption (mostly for async)
+  BOOTH.dirty = [];
+
   // async?
   if (!BOOTH.synchronous) {
       // prepare spots for encrypted answers
@@ -178,13 +181,17 @@ BOOTH.validate_question = function(question_num) {
     if (!BOOTH.synchronous) {
        // we need a unique ID for this to ensure that old results
        // don't mess things up. Using timestamp.
-       BOOTH.answer_timestamps[question_num] = new Date().getTime();
-       BOOTH.encrypted_answers[question_num] = null;
-       BOOTH.workers[question_num].postMessage({
-         'type' : 'encrypt',
-         'answer' : BOOTH.ballot.answers[question_num],
-         'id' : BOOTH.answer_timestamps[question_num]
-       });
+       // check if dirty
+       if (BOOTH.dirty[question_num]) {
+         BOOTH.answer_timestamps[question_num] = new Date().getTime();
+         BOOTH.encrypted_answers[question_num] = null;
+         BOOTH.dirty[question_num] = false;
+         BOOTH.workers[question_num].postMessage({
+           'type' : 'encrypt',
+           'answer' : BOOTH.ballot.answers[question_num],
+           'id' : BOOTH.answer_timestamps[question_num]
+         });
+       }
     }						    
     return true;
 };
@@ -224,10 +231,13 @@ BOOTH.show_question = function(question_num) {
   // first we remove the answers array
   var answer_array = BOOTH.ballot.answers[question_num];
   BOOTH.ballot.answers[question_num] = [];
+
+  // we should not set the dirty bit here, so we save it away
+  var old_dirty = BOOTH.dirty[question_num];
   $(answer_array).each(function(i, ans) {
     BOOTH.click_checkbox_script(question_num, ans, true);
   });
-
+  BOOTH.dirty[question_num] = old_dirty;
 };
 
 
@@ -237,6 +247,9 @@ BOOTH.click_checkbox_script = function(question_num, answer_num) {
 };
 
 BOOTH.click_checkbox = function(question_num, answer_num, checked_p) {
+
+  // keep track of dirty answers that need encrypting
+  BOOTH.dirty[question_num] = true;
 
   if (checked_p) {
      // multiple click events shouldn't screw this up
