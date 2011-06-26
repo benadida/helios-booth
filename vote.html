@@ -97,22 +97,14 @@ BOOTH.setup_ballot = function(election) {
   });
 };
 
-BOOTH.setup_election = function(raw_json) {
-  // IMPORTANT: we use the raw JSON for safer hash computation
-  // so that we are using the JSON serialization of the SERVER
-  // to compute the hash, not the JSON serialization in JavaScript.
-  // the main reason for this is unicode representation: the Python approach
-  // appears to be safer.
-  BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
+// all ciphertexts to null
+BOOTH.reset_ciphertexts = function() {
+  _(BOOTH.encrypted_answers).each(function(enc_answer, ea_num) {
+    BOOTH.launch_async_encryption_answer(ea_num);
+  });
+};
 
-  // FIXME: we shouldn't need to set both, but right now we are doing so
-  // because different code uses each one. Bah. Need fixing.
-  BOOTH.election.hash = b64_sha256(raw_json);
-  BOOTH.election.election_hash = BOOTH.election.hash
-
-  // dirty markers for encryption (mostly for async)
-  BOOTH.dirty = [];
-
+BOOTH.setup_workers = function(election_raw_json) {
   // async?
   if (!BOOTH.synchronous) {
       // prepare spots for encrypted answers
@@ -125,7 +117,7 @@ BOOTH.setup_election = function(raw_json) {
         var new_worker = new window.Worker("boothworker.js");
         new_worker.postMessage({
           'type': 'setup',
-          'election' : raw_json,
+          'election' : election_raw_json,
           'question_num' : q_num
         });
 
@@ -151,6 +143,26 @@ BOOTH.setup_election = function(raw_json) {
         BOOTH.workers[q_num] = new_worker;
       });
   }
+};
+
+BOOTH.setup_election = function(raw_json) {
+  // IMPORTANT: we use the raw JSON for safer hash computation
+  // so that we are using the JSON serialization of the SERVER
+  // to compute the hash, not the JSON serialization in JavaScript.
+  // the main reason for this is unicode representation: the Python approach
+  // appears to be safer.
+  BOOTH.election = HELIOS.Election.fromJSONString(raw_json);
+
+  // FIXME: we shouldn't need to set both, but right now we are doing so
+  // because different code uses each one. Bah. Need fixing.
+  BOOTH.election.hash = b64_sha256(raw_json);
+  BOOTH.election.election_hash = BOOTH.election.hash
+
+  // dirty markers for encryption (mostly for async)
+  BOOTH.dirty = [];
+
+  // async?
+  BOOTH.setup_workers(raw_json);
   
   document.title += ' - ' + BOOTH.election.name;
 
@@ -169,6 +181,17 @@ BOOTH.show_election = function() {
   BOOTH.show($('#election_div')).processTemplate({'election' : BOOTH.election});
 };
 
+BOOTH.launch_async_encryption_answer = function(question_num) {
+   BOOTH.answer_timestamps[question_num] = new Date().getTime();
+   BOOTH.encrypted_answers[question_num] = null;
+   BOOTH.dirty[question_num] = false;
+   BOOTH.workers[question_num].postMessage({
+      'type' : 'encrypt',
+      'answer' : BOOTH.ballot.answers[question_num],
+      'id' : BOOTH.answer_timestamps[question_num]
+   });
+};
+
 // check if the current question is ok
 BOOTH.validate_question = function(question_num) {
     // check if enough answers are checked
@@ -183,14 +206,7 @@ BOOTH.validate_question = function(question_num) {
        // don't mess things up. Using timestamp.
        // check if dirty
        if (BOOTH.dirty[question_num]) {
-         BOOTH.answer_timestamps[question_num] = new Date().getTime();
-         BOOTH.encrypted_answers[question_num] = null;
-         BOOTH.dirty[question_num] = false;
-         BOOTH.workers[question_num].postMessage({
-           'type' : 'encrypt',
-           'answer' : BOOTH.ballot.answers[question_num],
-           'id' : BOOTH.answer_timestamps[question_num]
-         });
+         BOOTH.launch_async_encryption_answer(question_num);
        }
     }						    
     return true;
