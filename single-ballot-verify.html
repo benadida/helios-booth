@@ -8,6 +8,7 @@
   <script language="javascript" src="js/jscrypto/jsbn.js"></script>
   <script language="javascript" src="js/jscrypto/jsbn2.js"></script>
   <script language="javascript" src="js/jscrypto/sjcl.js"></script>
+  <script language="javascript" src="js/underscore-min.js"></script>
   <script language="javascript" src="js/jquery-1.2.2.min.js"></script>
   <script language="javascript" src="js/jquery-jtemplates.js"></script>
   <script language="javascript" src="js/jquery.json.min.js"></script>
@@ -115,7 +116,7 @@ function verify_single_ballot(election_url, audit_trail) {
           result_append("PROBLEM = Proofs don't work.");
       }
     } catch (e) {
-      result_append('problem parsing election or ballot data structures, malformed inputs.');
+      result_append('problem parsing election or ballot data structures, malformed inputs: ' + e.toString());
       overall_result=false;
     }
       
