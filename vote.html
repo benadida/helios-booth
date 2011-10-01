@@ -353,7 +353,22 @@ BOOTH.seal_ballot = function() {
 };
 
 BOOTH.audit_ballot = function() {
-    BOOTH.audit_trail = $.toJSON(BOOTH.encrypted_ballot.get_audit_trail());
+    var	num_tries = 0;
+    while (true) {
+      BOOTH.audit_trail = $.toJSON(BOOTH.encrypted_ballot.get_audit_trail());
+      if (BOOTH.audit_trail.indexOf('[object') == -1)
+        break;
+
+      // that's right, we're doing this a few times, because apparently it takes more than once
+      BigInt.prototype.toJSONObject = function() {return this._java_bigint.toString();};
+      num_tries	+= 1;
+      if (num_tries > 20) {
+        alert('There was a weird error encrypting your vote. We	recommend trying a different browser.');
+        throw "problem with your browser's implementation of Java. Use a different browser.";
+      }
+    }
+
+    // BOOTH.audit_trail = $.toJSON(BOOTH.encrypted_ballot.get_audit_trail());
     BOOTH.show($('#audit_div')).processTemplate({'audit_trail' : BOOTH.audit_trail, 'election_url' : BOOTH.election_url});
 };
 
