@@ -74,6 +74,22 @@ function verify_single_ballot(election_url, audit_trail) {
       encrypted_vote = HELIOS.EncryptedVote.fromJSONObject(encrypted_vote_json, election);
       result_append("smart ballot tracker is " + encrypted_vote.get_hash());
 
+      var num_tries = 0;
+      while (true) {
+         var evj = $.toJSON(encrypted_vote.toJSONObject());
+         if (evj.indexOf('[object') == -1)
+           break;
+
+         // that's right, we're doing this a few times, because apparently it takes more than once
+         BigInt.prototype.toJSONObject = function() {return this._java_bigint.toString();};
+         num_tries += 1;
+         if (num_tries > 20) {
+      	   alert('There was a weird error encrypting your vote. We	recommend trying a different browser.');
+
+           throw "weird error, try a different browser.";
+         }
+      }
+
       // check the hash
       if (election_hash == encrypted_vote.election_hash) {
           result_append("election fingerprint matches ballot");
@@ -112,6 +128,7 @@ function verify_single_ballot(election_url, audit_trail) {
           result_append("PROBLEM = Proofs don't work.");
       }
     } catch (e) {
+      alert(e);
       result_append('problem parsing election or ballot data structures, malformed inputs.');
       overall_result=false;
     }
