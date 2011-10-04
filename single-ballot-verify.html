@@ -72,23 +72,10 @@ function verify_single_ballot(election_url, audit_trail) {
 
       // display ballot fingerprint
       encrypted_vote = HELIOS.EncryptedVote.fromJSONObject(encrypted_vote_json, election);
+      BigInt.patchForChrome(function() {
+        return $.toJSON(encrypted_vote.toJSONObject());
+      });
       result_append("smart ballot tracker is " + encrypted_vote.get_hash());
-
-      var num_tries = 0;
-      while (true) {
-         var evj = $.toJSON(encrypted_vote.toJSONObject());
-         if (evj.indexOf('[object') == -1)
-           break;
-
-         // that's right, we're doing this a few times, because apparently it takes more than once
-         BigInt.prototype.toJSONObject = function() {return this._java_bigint.toString();};
-         num_tries += 1;
-         if (num_tries > 20) {
-      	   alert('There was a weird error encrypting your vote. We	recommend trying a different browser.');
-
-           throw "weird error, try a different browser.";
-         }
-      }
 
       // check the hash
       if (election_hash == encrypted_vote.election_hash) {
