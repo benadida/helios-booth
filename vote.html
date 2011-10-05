@@ -92,6 +92,10 @@ BOOTH.setup_ballot = function(election) {
   });
 };
 
+function escape_html(content) {
+  return $('<div/>').text(content).html();
+}
+
 BOOTH.setup_election = function(raw_json) {
   // IMPORTANT: we use the raw JSON for safer hash computation
   // so that we are using the JSON serialization of the SERVER
@@ -106,6 +110,11 @@ BOOTH.setup_election = function(raw_json) {
   BOOTH.election.election_hash = BOOTH.election.hash
   
   document.title += ' - ' + BOOTH.election.name;
+
+  // escape election fields
+  $(['description', 'name']).each(function(i, field) {
+    BOOTH.election[field] = escape_html(BOOTH.election[field]);
+  });
 
   $('#header').processTemplate({'election' : BOOTH.election});
   $('#footer').processTemplate({'election' : BOOTH.election});
